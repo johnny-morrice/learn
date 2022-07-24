@@ -1,0 +1,39 @@
+package main
+
+import "errors"
+
+type BlogPostRecord struct {
+	ID    int
+	UUID  string
+	Title string
+}
+
+type BlogStore struct {
+	Posts []BlogPostRecord
+}
+
+func (store *BlogStore) AddPost(post BlogPostRecord) error {
+	post.ID = len(store.Posts)
+	store.Posts = append(store.Posts, post)
+	return nil
+}
+
+func (store *BlogStore) CountPosts() (int, error) {
+	return len(store.Posts), nil
+}
+
+func (store *BlogStore) GetPostsPage(offset, limit int) ([]BlogPostRecord, error) {
+	if offset < 0 || limit < 1 {
+		return nil, errors.New("invalid parameters for GetPostsPage")
+	}
+
+	if offset >= len(store.Posts) {
+		return []BlogPostRecord{}, nil
+	}
+
+	if offset+limit < len(store.Posts) {
+		limit = len(store.Posts)
+	}
+
+	return store.Posts[offset:limit], nil
+}

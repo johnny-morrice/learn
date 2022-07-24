@@ -1,0 +1,76 @@
+package main
+
+import (
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
+)
+
+type BlogPost struct {
+	UUID  string
+	Title string
+}
+
+func (post BlogPost) Validate() error {
+	if post.Title == "" {
+		return errors.New("expected post to have title")
+	}
+	_, err := uuid.Parse(post.UUID)
+	if err != nil {
+		return errors.Wrap(err, "failed to parse post UUID")
+	}
+	return nil
+}
+
+type BlogService struct {
+	Store *BlogStore
+}
+
+type BlogPostPage struct {
+	Total  int
+	Limit  int
+	Offset int
+	Posts  []BlogPost
+}
+
+func (srv BlogService) AddPost(post BlogPost) error {
+	record := BlogPostRecord{
+		UUID:  post.UUID,
+		Title: post.Title,
+	}
+	return srv.Store.AddPost(record)
+}
+
+func (srv BlogService) GetPostsPage(offset, limit int) (*BlogPostPage, error) {
+	if offset < 0 || limit < 1 {
+		return nil, errors.New("invalid parameters for GetPostsPage")
+	}
+
+	postRecords, err := srv.Store.GetPostsPage(offset, limit)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := srv.Store.CountPosts()
+
+	if err != nil {
+		return nil, err
+	}
+
+	posts := []BlogPost{}
+
+	for _, rec := range postRecords {
+		posts = append(posts, BlogPost{
+			UUID:  rec.UUID,
+			Title: rec.Title,
+		})
+	}
+
+	page := &BlogPostPage{
+		Total:  total,
+		Offset: offset,
+		Limit:  limit,
+		Posts:  posts,
+	}
+
+	return page, nil
+}
