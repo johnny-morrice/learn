@@ -12,7 +12,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"UUID\": \"{{$guid}}\",\r\n    \"Title\": \"MyBlogTitle\"\r\n}",
+					"raw": "{\r\n    \"UUID\": \"{{$guid}}\",\r\n    \"Title\": \"MyBlogTitle1\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -20,7 +20,8 @@
 					}
 				},
 				"url": {
-					"raw": "localhost:8080/blog/post",
+					"raw": "http://localhost:8080/blog/post",
+					"protocol": "http",
 					"host": [
 						"localhost"
 					],
@@ -39,7 +40,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "localhost:8080/blog/post?offset=4&limit=1",
+					"raw": "localhost:8080/blog/post?offset=0&limit=3",
 					"host": [
 						"localhost"
 					],
@@ -51,11 +52,11 @@
 					"query": [
 						{
 							"key": "offset",
-							"value": "4"
+							"value": "0"
 						},
 						{
 							"key": "limit",
-							"value": "1"
+							"value": "3"
 						}
 					]
 				}
