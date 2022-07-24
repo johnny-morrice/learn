@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"log"
 )
 
 type BlogPostRecord struct {
@@ -26,7 +25,6 @@ func (store *BlogStore) CountPosts() (int, error) {
 }
 
 func (store *BlogStore) GetPostsPage(offset, limit int) ([]BlogPostRecord, error) {
-	log.Printf("getting post with offset, limit: %v, %v", offset, limit)
 	if offset < 0 || limit < 1 {
 		return nil, errors.New("invalid parameters for GetPostsPage")
 	}
@@ -37,7 +35,6 @@ func (store *BlogStore) GetPostsPage(offset, limit int) ([]BlogPostRecord, error
 
 	if offset+limit > len(store.Posts) {
 		limit = len(store.Posts) - offset
-		log.Printf("changed limit to: %v", limit)
 	}
 
 	return store.Posts[offset : offset+limit], nil
