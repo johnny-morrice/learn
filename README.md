@@ -1,6 +1,6 @@
 # Learn
 
-This project contains all code for the Johnny Morrice student programmer teaching course.
+This project contains all code for the Johnny Morrice programmer teaching course.
 
 ## Learnblog
 
