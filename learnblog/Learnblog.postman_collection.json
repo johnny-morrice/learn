@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "5da12989-2034-4a5a-944c-ed7de734abed",
+		"name": "Learnblog",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create blog post",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"UUID\": \"{{$guid}}\",\r\n    \"Title\": \"MyBlogTitle\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/blog/post",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blog",
+						"post"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get blog posts page",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/blog/post?offset=4&limit=1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blog",
+						"post"
+					],
+					"query": [
+						{
+							"key": "offset",
+							"value": "4"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
