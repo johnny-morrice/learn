@@ -5,6 +5,7 @@ COPY go.sum .
 RUN go mod download -x
 COPY . .
 RUN go install .
+
 FROM alpine:3.14 as app_runtime
 WORKDIR /app
 COPY --from=builder /go/bin/learnblog /app
