@@ -13,8 +13,8 @@ type BlogRouter struct {
 }
 
 func (r BlogRouter) AddRoutesToGroup(group *gin.RouterGroup) {
-	group.GET("/", r.GetPostsPage)
-	group.POST("/", r.CreatePost)
+	group.GET("/post", r.GetPostsPage)
+	group.POST("/post", r.CreatePost)
 }
 
 func (r BlogRouter) CreatePost(ctx *gin.Context) {
