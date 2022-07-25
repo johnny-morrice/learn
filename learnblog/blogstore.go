@@ -25,6 +25,15 @@ func (store *BlogStore) CountPosts() (int, error) {
 	return len(store.Posts), nil
 }
 
+func (store *BlogStore) GetPost(postID string) (*BlogPostRecord, error) {
+	for _, rec := range store.Posts {
+		if postID == rec.UUID {
+			return &rec, nil
+		}
+	}
+	return nil, errors.New("could not find post")
+}
+
 func (store *BlogStore) GetPostsPage(offset, limit int) ([]BlogPostRecord, error) {
 	if offset < 0 || limit < 1 {
 		return nil, errors.New("invalid parameters for GetPostsPage")

@@ -33,6 +33,31 @@ type BlogPostPage struct {
 	Posts  []BlogPost
 }
 
+func BlogRecToBlogPost(rec BlogPostRecord) BlogPost {
+	return BlogPost{
+		UUID:  rec.UUID,
+		Title: rec.Title,
+		Body:  rec.Body,
+	}
+}
+
+func BlogPostToBlogRec(post BlogPost) BlogPostRecord {
+	return BlogPostRecord{
+		UUID:  post.UUID,
+		Title: post.Title,
+		Body:  post.Body,
+	}
+}
+
+func (srv BlogService) GetPost(postID string) (*BlogPost, error) {
+	rec, err := srv.Store.GetPost(postID)
+	if err != nil {
+		return nil, err
+	}
+	post := BlogRecToBlogPost(*rec)
+	return &post, nil
+}
+
 func (srv BlogService) AddPost(post BlogPost) error {
 	record := BlogPostRecord{
 		UUID:  post.UUID,

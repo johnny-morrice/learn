@@ -15,6 +15,23 @@ type BlogRouter struct {
 func (r BlogRouter) AddRoutesToGroup(group *gin.RouterGroup) {
 	group.GET("/post", r.GetPostsPage)
 	group.POST("/post", r.CreatePost)
+	group.GET("/post/:postID", r.GetPost)
+}
+
+func (r BlogRouter) GetPost(ctx *gin.Context) {
+	postID := ctx.Param("postID")
+	if postID == "" {
+		ctx.AbortWithStatus(http.StatusBadRequest)
+		log.Println("expected postID")
+		return
+	}
+	post, err := r.Service.GetPost(postID)
+	if err != nil {
+		ctx.AbortWithStatus(http.StatusInternalServerError)
+		log.Printf("failed to get post: %s", err)
+		return
+	}
+	ctx.JSON(http.StatusOK, post)
 }
 
 func (r BlogRouter) CreatePost(ctx *gin.Context) {
