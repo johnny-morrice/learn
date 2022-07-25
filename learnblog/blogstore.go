@@ -8,6 +8,7 @@ type BlogPostRecord struct {
 	ID    int
 	UUID  string
 	Title string
+	Body  string
 }
 
 type BlogStore struct {

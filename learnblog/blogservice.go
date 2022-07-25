@@ -8,6 +8,7 @@ import (
 type BlogPost struct {
 	UUID  string
 	Title string
+	Body  string
 }
 
 func (post BlogPost) Validate() error {
@@ -36,6 +37,7 @@ func (srv BlogService) AddPost(post BlogPost) error {
 	record := BlogPostRecord{
 		UUID:  post.UUID,
 		Title: post.Title,
+		Body:  post.Body,
 	}
 	return srv.Store.AddPost(record)
 }
@@ -62,6 +64,7 @@ func (srv BlogService) GetPostsPage(offset, limit int) (*BlogPostPage, error) {
 		posts = append(posts, BlogPost{
 			UUID:  rec.UUID,
 			Title: rec.Title,
+			Body:  rec.Body,
 		})
 	}
 
