@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "5da12989-2034-4a5a-944c-ed7de734abed",
+		"_postman_id": "8c34a07d-f1e0-497d-b27e-ef5a2c505617",
 		"name": "Learnblog",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -58,6 +58,27 @@
 							"key": "limit",
 							"value": "3"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get blog post",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/blog/post/1234",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blog",
+						"post",
+						"1234"
 					]
 				}
 			},
