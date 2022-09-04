@@ -1,0 +1,20 @@
+version: '3'
+services:
+    core-server:
+        ports:
+            - "8080:8080"
+        image: "learnblog"
+        links:
+            - postgres
+        env_file:
+            - env/dev/postgres.env
+    postgres:
+        ports:
+            - "5432:5432"
+        image: "postgres:14-alpine"
+        volumes:
+          - db-volume:/var/lib/postgresql
+        env_file:
+            - env/dev/postgres.env
+volumes:
+  db-volume:

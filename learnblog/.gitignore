@@ -24,4 +24,4 @@
 scratch/
 temp/
 vagrant/.vagrant/
-env/
+env/prod
