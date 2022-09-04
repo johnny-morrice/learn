@@ -18,5 +18,17 @@ The stack we will implement is:
 * Heroku
 * Netlify
 
+## Useful commands
 
+### Run a migration:
+
+```
+docker run --env-file env/dev/learnblog.env -it --rm learnblog /app/entrypoint.sh --command migrate
+```
+
+### Open the database
+
+```
+docker exec --it $CONTAINER_ID /bin/psql -U postgres -d postgres
+```
 
