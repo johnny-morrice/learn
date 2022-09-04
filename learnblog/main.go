@@ -33,7 +33,10 @@ func main() {
 
 func validateDatabaseParam() error {
 	_, err := url.Parse(*databaseURL)
-	return fmt.Errorf("failed to parse database URL: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to parse database URL: %w", err)
+	}
+	return nil
 }
 
 func migrateDbUp() {
