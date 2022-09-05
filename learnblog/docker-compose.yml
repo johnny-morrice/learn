@@ -5,10 +5,12 @@ services:
             - "8080:8080"
         image: "learnblog"
         links:
-            - postgres
+            - database
         env_file:
             - env/dev/postgres.env
-    postgres:
+        networks:
+            - learnblog-network
+    database:
         ports:
             - "5432:5432"
         image: "postgres:14-alpine"
@@ -16,5 +18,9 @@ services:
           - db-volume:/var/lib/postgresql
         env_file:
             - env/dev/postgres.env
+        networks:
+            - learnblog-network
 volumes:
   db-volume:
+networks:
+    learnblog-network:
