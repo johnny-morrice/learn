@@ -29,6 +29,6 @@ docker run --network learnblog_learnblog-network --env-file env/dev/learnblog.en
 ### Open the database
 
 ```
-docker exec --it $CONTAINER_ID /bin/psql -U postgres -d postgres
+docker exec -it $DB_CONTAINER_ID /usr/local/bin/psql -U postgres -d postgres
 ```
 
