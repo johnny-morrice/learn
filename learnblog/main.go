@@ -15,7 +15,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const dbDriver = "postgres"
+const dbDriverName = "postgres"
 
 var addrFlag = flag.String("addr", "0.0.0.0:8080", "server bind address in form IP:PORT")
 var command = flag.String("command", "serve", "command to run: serve,uuid,migrate")
@@ -50,7 +50,7 @@ func openDb() (migratedb.Driver, error) {
 		return nil, err
 	}
 
-	db, err := sql.Open(dbDriver, *databaseURL)
+	db, err := sql.Open(dbDriverName, *databaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("error opening postgres connection: %w", err)
 	}
@@ -67,7 +67,7 @@ func migrateDbUp() {
 		log.Fatal(err)
 		return
 	}
-	m, err := migrate.NewWithDatabaseInstance(*migrationsPath, dbDriver, driver)
+	m, err := migrate.NewWithDatabaseInstance(*migrationsPath, dbDriverName, driver)
 	if err != nil {
 		log.Fatal(err)
 		return
