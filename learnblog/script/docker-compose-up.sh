@@ -2,4 +2,4 @@
 set -e
 
 docker build . -t learnblog
-docker-compose up
+docker compose up
