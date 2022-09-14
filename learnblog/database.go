@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgmigrate "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -54,6 +55,7 @@ func migrateDbUp(databaseURL, migrationsPath string) error {
 	if err != nil {
 		return fmt.Errorf("error migrating up: %w", err)
 	}
+	log.Println("migrated UP ok")
 	return nil
 }
 
@@ -67,5 +69,6 @@ func migrateDbDown(databaseURL, migrationsPath string) error {
 	if err != nil {
 		return fmt.Errorf("error migrating up: %w", err)
 	}
+	log.Println("migrated DOWN ok")
 	return nil
 }

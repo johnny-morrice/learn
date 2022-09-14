@@ -22,9 +22,15 @@ func main() {
 	case "uuid":
 		generateUUID()
 	case "migrate-up":
-		migrateDbUp(*databaseURLParam, *migrationsPathParam)
+		err := migrateDbUp(*databaseURLParam, *migrationsPathParam)
+		if err != nil {
+			log.Fatal(err)
+		}
 	case "migrate-down":
-		migrateDbDown(*databaseURLParam, *migrationsPathParam)
+		err := migrateDbDown(*databaseURLParam, *migrationsPathParam)
+		if err != nil {
+			log.Fatal(err)
+		}
 	default:
 		log.Fatalf("unsupported command: %s", *command)
 	}
