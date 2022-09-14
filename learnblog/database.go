@@ -67,7 +67,7 @@ func migrateDbDown(databaseURL, migrationsPath string) error {
 	defer migration.Close()
 	err = migration.Down()
 	if err != nil {
-		return fmt.Errorf("error migrating up: %w", err)
+		return fmt.Errorf("error migrating down: %w", err)
 	}
 	log.Println("migrated DOWN ok")
 	return nil
