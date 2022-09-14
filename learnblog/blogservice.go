@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
@@ -22,8 +24,15 @@ func (post BlogPost) Validate() error {
 	return nil
 }
 
+type BlogStore interface {
+	AddPost(post BlogPostRecord) error
+	CountPosts() (int, error)
+	GetPost(postID string) (*BlogPostRecord, error)
+	GetPostsPage(offset, limit int) ([]BlogPostRecord, error)
+}
+
 type BlogService struct {
-	Store *BlogStore
+	Store BlogStore
 }
 
 type BlogPostPage struct {
@@ -49,7 +58,7 @@ func BlogPostToBlogRec(post BlogPost) BlogPostRecord {
 	}
 }
 
-func (srv BlogService) GetPost(postID string) (*BlogPost, error) {
+func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPost, error) {
 	rec, err := srv.Store.GetPost(postID)
 	if err != nil {
 		return nil, err
@@ -58,7 +67,7 @@ func (srv BlogService) GetPost(postID string) (*BlogPost, error) {
 	return &post, nil
 }
 
-func (srv BlogService) AddPost(post BlogPost) error {
+func (srv BlogService) AddPost(ctx context.Context, post BlogPost) error {
 	record := BlogPostRecord{
 		UUID:  post.UUID,
 		Title: post.Title,
@@ -67,7 +76,7 @@ func (srv BlogService) AddPost(post BlogPost) error {
 	return srv.Store.AddPost(record)
 }
 
-func (srv BlogService) GetPostsPage(offset, limit int) (*BlogPostPage, error) {
+func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*BlogPostPage, error) {
 	if offset < 0 || limit < 1 {
 		return nil, errors.New("invalid parameters for GetPostsPage")
 	}

@@ -25,7 +25,7 @@ func (r BlogRouter) GetPost(ctx *gin.Context) {
 		log.Println("expected postID")
 		return
 	}
-	post, err := r.Service.GetPost(postID)
+	post, err := r.Service.GetPost(ctx, postID)
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		log.Printf("failed to get post: %s", err)
@@ -50,7 +50,7 @@ func (r BlogRouter) CreatePost(ctx *gin.Context) {
 		return
 	}
 
-	err = r.Service.AddPost(post)
+	err = r.Service.AddPost(ctx, post)
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		log.Printf("error adding post: %s", err)
@@ -91,7 +91,7 @@ func (r BlogRouter) GetPostsPage(ctx *gin.Context) {
 		log.Printf("bad limit parameter: %v", limit)
 		return
 	}
-	page, err := r.Service.GetPostsPage(offset, limit)
+	page, err := r.Service.GetPostsPage(ctx, offset, limit)
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		log.Printf("error getting page: %s", err)

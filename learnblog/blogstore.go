@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 )
 
@@ -11,21 +12,30 @@ type BlogPostRecord struct {
 	Body  string
 }
 
-type BlogStore struct {
+type BlogStoreMemoryImpl struct {
 	Posts []BlogPostRecord
 }
 
-func (store *BlogStore) AddPost(post BlogPostRecord) error {
+func (store *BlogStoreMemoryImpl) AddPost(ctx context.Context, post BlogPostRecord) error {
+	if ctx.Err() != nil {
+		return errors.New("context expired")
+	}
 	post.ID = len(store.Posts)
 	store.Posts = append(store.Posts, post)
 	return nil
 }
 
-func (store *BlogStore) CountPosts() (int, error) {
+func (store *BlogStoreMemoryImpl) CountPosts(ctx context.Context) (int, error) {
+	if ctx.Err() != nil {
+		return 0, errors.New("context expired")
+	}
 	return len(store.Posts), nil
 }
 
-func (store *BlogStore) GetPost(postID string) (*BlogPostRecord, error) {
+func (store *BlogStoreMemoryImpl) GetPost(ctx context.Context, postID string) (*BlogPostRecord, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("context expired")
+	}
 	for _, rec := range store.Posts {
 		if postID == rec.UUID {
 			return &rec, nil
@@ -34,7 +44,11 @@ func (store *BlogStore) GetPost(postID string) (*BlogPostRecord, error) {
 	return nil, errors.New("could not find post")
 }
 
-func (store *BlogStore) GetPostsPage(offset, limit int) ([]BlogPostRecord, error) {
+func (store *BlogStoreMemoryImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error) {
+	if ctx.Err() != nil {
+		return nil, errors.New("context expired")
+	}
+
 	if offset < 0 || limit < 1 {
 		return nil, errors.New("invalid parameters for GetPostsPage")
 	}
