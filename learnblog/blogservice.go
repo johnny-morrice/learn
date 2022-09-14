@@ -86,7 +86,7 @@ func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*Bl
 		return nil, err
 	}
 
-	total, err := srv.Store.CountPosts()
+	total, err := srv.Store.CountPosts(ctx)
 
 	if err != nil {
 		return nil, err
