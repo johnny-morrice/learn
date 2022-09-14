@@ -32,3 +32,16 @@ docker run --network learnblog_learnblog-network --env-file env/dev/learnblog.en
 docker exec -it $DB_CONTAINER_ID /usr/local/bin/psql -U postgres -d postgres
 ```
 
+## Quickly wipe the database
+
+```
+# Stop all containers
+docker ps -q | xargs docker stop
+
+# Remove all containers
+docker ps --all -q | xargs docker rm
+
+# Remove volume
+docker volume rm learnblog_db-volume
+```
+
