@@ -1,6 +1,6 @@
 CREATE TABLE blogposts (
     id SERIAL PRIMARY KEY,
-    uuid VARCHAR(36) NOT NULL,
+    uuid VARCHAR(36) UNIQUE NOT NULL,
     title TEXT NOT NULL,
     body TEXT NOT NULL
 );

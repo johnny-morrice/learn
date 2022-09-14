@@ -25,10 +25,10 @@ func (post BlogPost) Validate() error {
 }
 
 type BlogStore interface {
-	AddPost(post BlogPostRecord) error
-	CountPosts() (int, error)
-	GetPost(postID string) (*BlogPostRecord, error)
-	GetPostsPage(offset, limit int) ([]BlogPostRecord, error)
+	AddPost(ctx context.Context, post BlogPostRecord) error
+	CountPosts(ctx context.Context) (int, error)
+	GetPost(ctx context.Context, postID string) (*BlogPostRecord, error)
+	GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error)
 }
 
 type BlogService struct {
@@ -59,7 +59,7 @@ func BlogPostToBlogRec(post BlogPost) BlogPostRecord {
 }
 
 func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPost, error) {
-	rec, err := srv.Store.GetPost(postID)
+	rec, err := srv.Store.GetPost(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (srv BlogService) AddPost(ctx context.Context, post BlogPost) error {
 		Title: post.Title,
 		Body:  post.Body,
 	}
-	return srv.Store.AddPost(record)
+	return srv.Store.AddPost(ctx, record)
 }
 
 func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*BlogPostPage, error) {
@@ -81,7 +81,7 @@ func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*Bl
 		return nil, errors.New("invalid parameters for GetPostsPage")
 	}
 
-	postRecords, err := srv.Store.GetPostsPage(offset, limit)
+	postRecords, err := srv.Store.GetPostsPage(ctx, offset, limit)
 	if err != nil {
 		return nil, err
 	}
