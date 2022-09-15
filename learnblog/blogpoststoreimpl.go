@@ -28,7 +28,7 @@ func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPost) error
 }
 func (store BlogPostStoreImpl) CountPosts(ctx context.Context) (int64, error) {
 	count := int64(0)
-	err := store.DB.Model(&BlogPost{}).Count(&count).Error
+	err := store.DB.WithContext(ctx).Model(&BlogPost{}).Count(&count).Error
 	if err != nil {
 		return 0, fmt.Errorf("failed to count posts: %w", err)
 	}
