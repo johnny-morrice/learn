@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgmigrate "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -83,25 +82,4 @@ func migrateDbDown(databaseURL, migrationsPath string) error {
 	}
 	log.Println("migrated DOWN ok")
 	return nil
-}
-
-func postgresURL2DSN(dbURL string) (string, error) {
-	myURL, err := url.Parse(dbURL)
-	if err != nil {
-		return "", fmt.Errorf("failed to parse database URL: %w", err)
-	}
-	pass, _ := myURL.User.Password()
-	dsn := postgresDSN(myURL.Host, myURL.Port(), myURL.User.Username(), pass, myURL.Path)
-	return dsn, nil
-}
-
-func postgresDSN(host string, port string, user string, password string, db string) string {
-	return fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		host,
-		port,
-		user,
-		password,
-		db,
-	)
 }

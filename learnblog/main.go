@@ -55,12 +55,7 @@ func runServer() {
 		log.Fatal(err)
 	}
 
-	dsn, err := postgresURL2DSN(*databaseURLParam)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("using GORM DSN: %s", dsn)
-	db, err := openGorm(dsn)
+	db, err := openGorm(*databaseURLParam)
 	if err != nil {
 		log.Fatal(err)
 	}
