@@ -49,7 +49,16 @@ func generateUUID() {
 }
 
 func runServer() {
-	db, err := openGorm(*databaseURLParam)
+	err := validateDatabaseParam()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dsn, err := postgresURL2DSN(*databaseURLParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+	db, err := openGorm(dsn)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgmigrate "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -29,8 +30,8 @@ func openDb(databaseURL string) (*sql.DB, error) {
 	return db, nil
 }
 
-func openGorm(databaseURL string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
+func openGorm(postgresDSN string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(postgresDSN), &gorm.Config{})
 	if err != nil {
 		return nil, fmt.Errorf("error opening gorm connection: %w", err)
 	}
@@ -82,4 +83,25 @@ func migrateDbDown(databaseURL, migrationsPath string) error {
 	}
 	log.Println("migrated DOWN ok")
 	return nil
+}
+
+func postgresURL2DSN(dbURL string) (string, error) {
+	myURL, err := url.Parse(dbURL)
+	if err != nil {
+		return "", fmt.Errorf("failed to parse database URL: %w", err)
+	}
+	pass, _ := myURL.User.Password()
+	dsn := postgresDSN(myURL.Host, myURL.Port(), myURL.User.Username(), pass, myURL.Path)
+	return dsn, nil
+}
+
+func postgresDSN(host string, port string, user string, password string, db string) string {
+	return fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+		host,
+		port,
+		user,
+		password,
+		db,
+	)
 }
