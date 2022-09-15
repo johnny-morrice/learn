@@ -49,7 +49,11 @@ func generateUUID() {
 }
 
 func runServer() {
-	blogStore := &BlogPostStoreMemoryImpl{}
+	db, err := openGorm(*databaseURLParam)
+	if err != nil {
+		log.Fatal(err)
+	}
+	blogStore := BlogPostStoreImpl{DB: db}
 	blogService := BlogService{
 		Store: blogStore,
 	}
@@ -65,7 +69,7 @@ func runServer() {
 		},
 		Addr: *addrFlag,
 	}
-	err := srv.Run()
+	err = srv.Run()
 	if err != nil {
 		log.Printf("server ended: %s", err)
 	}

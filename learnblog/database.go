@@ -9,6 +9,8 @@ import (
 	pgmigrate "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const dbDriverName = "postgres"
@@ -22,6 +24,15 @@ func openDb(databaseURL string) (*sql.DB, error) {
 	db, err := sql.Open(dbDriverName, databaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("error opening postgres connection: %w", err)
+	}
+
+	return db, nil
+}
+
+func openGorm(databaseURL string) (*gorm.DB, error) {
+	db, err := gorm.Open(postgres.Open(databaseURL), &gorm.Config{})
+	if err != nil {
+		return nil, fmt.Errorf("error opening gorm connection: %w", err)
 	}
 
 	return db, nil
