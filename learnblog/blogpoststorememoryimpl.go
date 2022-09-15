@@ -5,13 +5,6 @@ import (
 	"errors"
 )
 
-type BlogPostRecord struct {
-	ID    int
-	UUID  string
-	Title string
-	Body  string
-}
-
 type BlogPostStoreMemoryImpl struct {
 	Posts []BlogPostRecord
 }
@@ -20,7 +13,7 @@ func (store *BlogPostStoreMemoryImpl) AddPost(ctx context.Context, post BlogPost
 	if ctx.Err() != nil {
 		return errors.New("context expired")
 	}
-	post.ID = len(store.Posts)
+	post.ID = uint(len(store.Posts))
 	store.Posts = append(store.Posts, post)
 	return nil
 }
