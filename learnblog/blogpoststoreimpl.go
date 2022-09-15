@@ -43,5 +43,10 @@ func (store BlogPostStoreImpl) GetPost(ctx context.Context, postID string) (*Blo
 	return post, nil
 }
 func (store BlogPostStoreImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPost, error) {
-	panic("not implemented")
+	result := []BlogPost{}
+	err := store.DB.WithContext(ctx).Offset(offset).Limit(limit).Find(&result).Error
+	if err != nil {
+		return nil, fmt.Errorf("failed to get blogpost page: %w", err)
+	}
+	return result, nil
 }
