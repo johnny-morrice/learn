@@ -31,7 +31,7 @@ func (store BlogPostStoreImpl) CountPosts(ctx context.Context) (int, error) {
 }
 func (store BlogPostStoreImpl) GetPost(ctx context.Context, postID string) (*BlogPostRecord, error) {
 	post := &BlogPostRecord{}
-	err := store.DB.WithContext(ctx).First(post, "uuid = ?", postID)
+	err := store.DB.WithContext(ctx).First(post, "uuid = ?", postID).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get blogpost: %w", err)
 	}
