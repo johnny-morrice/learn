@@ -26,7 +26,7 @@ func (post BlogPostViewModel) Validate() error {
 
 type BlogStore interface {
 	AddPost(ctx context.Context, post BlogPost) error
-	CountPosts(ctx context.Context) (int, error)
+	CountPosts(ctx context.Context) (int64, error)
 	GetPost(ctx context.Context, postID string) (*BlogPost, error)
 	GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPost, error)
 }
@@ -36,7 +36,7 @@ type BlogService struct {
 }
 
 type BlogPostPage struct {
-	Total  int
+	Total  int64
 	Limit  int
 	Offset int
 	Posts  []BlogPostViewModel

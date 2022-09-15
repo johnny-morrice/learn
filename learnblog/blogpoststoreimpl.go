@@ -26,8 +26,13 @@ func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPost) error
 
 	return nil
 }
-func (store BlogPostStoreImpl) CountPosts(ctx context.Context) (int, error) {
-	panic("not implemented")
+func (store BlogPostStoreImpl) CountPosts(ctx context.Context) (int64, error) {
+	count := int64(0)
+	err := store.DB.Model(&BlogPost{}).Count(&count).Error
+	if err != nil {
+		return 0, fmt.Errorf("failed to count posts: %w", err)
+	}
+	return count, nil
 }
 func (store BlogPostStoreImpl) GetPost(ctx context.Context, postID string) (*BlogPost, error) {
 	post := &BlogPost{}
