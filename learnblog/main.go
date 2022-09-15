@@ -49,6 +49,7 @@ func generateUUID() {
 }
 
 func runServer() {
+	log.Printf("connecting to database: %s", *databaseURLParam)
 	err := validateDatabaseParam()
 	if err != nil {
 		log.Fatal(err)
@@ -58,6 +59,7 @@ func runServer() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("using GORM DSN: %s", dsn)
 	db, err := openGorm(dsn)
 	if err != nil {
 		log.Fatal(err)

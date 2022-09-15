@@ -7,7 +7,7 @@ services:
         links:
             - database
         env_file:
-            - env/dev/postgres.env
+            - env/dev/learnblog.env
         networks:
             - learnblog-network
     database:
