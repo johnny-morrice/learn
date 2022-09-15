@@ -1,1 +1,1 @@
-DROP TABLE blogtags;
+DROP TABLE blog_tags;
