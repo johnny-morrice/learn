@@ -7,13 +7,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-type BlogPost struct {
+type BlogPostViewModel struct {
 	UUID  string
 	Title string
 	Body  string
 }
 
-func (post BlogPost) Validate() error {
+func (post BlogPostViewModel) Validate() error {
 	if post.Title == "" {
 		return errors.New("expected post to have title")
 	}
@@ -25,10 +25,10 @@ func (post BlogPost) Validate() error {
 }
 
 type BlogStore interface {
-	AddPost(ctx context.Context, post BlogPostRecord) error
+	AddPost(ctx context.Context, post BlogPost) error
 	CountPosts(ctx context.Context) (int, error)
-	GetPost(ctx context.Context, postID string) (*BlogPostRecord, error)
-	GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error)
+	GetPost(ctx context.Context, postID string) (*BlogPost, error)
+	GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPost, error)
 }
 
 type BlogService struct {
@@ -39,26 +39,26 @@ type BlogPostPage struct {
 	Total  int
 	Limit  int
 	Offset int
-	Posts  []BlogPost
+	Posts  []BlogPostViewModel
 }
 
-func BlogRecToBlogPost(rec BlogPostRecord) BlogPost {
-	return BlogPost{
+func BlogRecToBlogPost(rec BlogPost) BlogPostViewModel {
+	return BlogPostViewModel{
 		UUID:  rec.UUID,
 		Title: rec.Title,
 		Body:  rec.Body,
 	}
 }
 
-func BlogPostToBlogRec(post BlogPost) BlogPostRecord {
-	return BlogPostRecord{
+func BlogPostToBlogRec(post BlogPostViewModel) BlogPost {
+	return BlogPost{
 		UUID:  post.UUID,
 		Title: post.Title,
 		Body:  post.Body,
 	}
 }
 
-func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPost, error) {
+func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPostViewModel, error) {
 	rec, err := srv.Store.GetPost(ctx, postID)
 	if err != nil {
 		return nil, err
@@ -67,8 +67,8 @@ func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPost, e
 	return &post, nil
 }
 
-func (srv BlogService) AddPost(ctx context.Context, post BlogPost) error {
-	record := BlogPostRecord{
+func (srv BlogService) AddPost(ctx context.Context, post BlogPostViewModel) error {
+	record := BlogPost{
 		UUID:  post.UUID,
 		Title: post.Title,
 		Body:  post.Body,
@@ -92,10 +92,10 @@ func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*Bl
 		return nil, err
 	}
 
-	posts := []BlogPost{}
+	posts := []BlogPostViewModel{}
 
 	for _, rec := range postRecords {
-		posts = append(posts, BlogPost{
+		posts = append(posts, BlogPostViewModel{
 			UUID:  rec.UUID,
 			Title: rec.Title,
 			Body:  rec.Body,

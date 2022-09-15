@@ -35,7 +35,7 @@ func (r BlogRouter) GetPost(ctx *gin.Context) {
 }
 
 func (r BlogRouter) CreatePost(ctx *gin.Context) {
-	post := BlogPost{}
+	post := BlogPostViewModel{}
 	err := ctx.BindJSON(&post)
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusBadRequest)

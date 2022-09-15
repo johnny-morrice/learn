@@ -11,14 +11,14 @@ type BlogPostStoreImpl struct {
 	DB *gorm.DB
 }
 
-type BlogPostRecord struct {
+type BlogPost struct {
 	gorm.Model
 	UUID  string
 	Title string
 	Body  string
 }
 
-func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPostRecord) error {
+func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPost) error {
 	err := store.DB.WithContext(ctx).Create(&post).Error
 	if err != nil {
 		return fmt.Errorf("failed to create blogpost: %w", err)
@@ -29,14 +29,14 @@ func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPostRecord)
 func (store BlogPostStoreImpl) CountPosts(ctx context.Context) (int, error) {
 	panic("not implemented")
 }
-func (store BlogPostStoreImpl) GetPost(ctx context.Context, postID string) (*BlogPostRecord, error) {
-	post := &BlogPostRecord{}
+func (store BlogPostStoreImpl) GetPost(ctx context.Context, postID string) (*BlogPost, error) {
+	post := &BlogPost{}
 	err := store.DB.WithContext(ctx).First(post, "uuid = ?", postID).Error
 	if err != nil {
 		return nil, fmt.Errorf("failed to get blogpost: %w", err)
 	}
 	return post, nil
 }
-func (store BlogPostStoreImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error) {
+func (store BlogPostStoreImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPost, error) {
 	panic("not implemented")
 }

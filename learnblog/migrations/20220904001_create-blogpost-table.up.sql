@@ -1,4 +1,4 @@
-CREATE TABLE blogposts (
+CREATE TABLE blog_posts (
     id SERIAL PRIMARY KEY,
     uuid VARCHAR(36) UNIQUE NOT NULL,
     title TEXT NOT NULL,
