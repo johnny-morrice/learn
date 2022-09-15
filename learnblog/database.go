@@ -2,8 +2,10 @@ package main
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/golang-migrate/migrate/v4"
 	pgmigrate "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -30,12 +32,18 @@ func openDb(databaseURL string) (*sql.DB, error) {
 }
 
 func openGorm(postgresDSN string) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(postgresDSN), &gorm.Config{})
-	if err != nil {
-		return nil, fmt.Errorf("error opening gorm connection: %w", err)
-	}
+	const retries = 5
+	for i := 0; i < retries; i++ {
+		db, err := gorm.Open(postgres.Open(postgresDSN), &gorm.Config{})
+		if err != nil {
+			log.Printf("error opening gorm connection, retrying: %s", err.Error())
+			time.Sleep(time.Second)
+			continue
+		}
 
-	return db, nil
+		return db, nil
+	}
+	return nil, errors.New("too many errors connecting to postgres")
 }
 
 func openMigration(databaseURL, migrationsPath string) (*migrate.Migrate, error) {
