@@ -49,7 +49,7 @@ func generateUUID() {
 }
 
 func runServer() {
-	blogStore := &BlogStoreMemoryImpl{}
+	blogStore := &BlogPostStoreMemoryImpl{}
 	blogService := BlogService{
 		Store: blogStore,
 	}

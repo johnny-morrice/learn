@@ -12,11 +12,11 @@ type BlogPostRecord struct {
 	Body  string
 }
 
-type BlogStoreMemoryImpl struct {
+type BlogPostStoreMemoryImpl struct {
 	Posts []BlogPostRecord
 }
 
-func (store *BlogStoreMemoryImpl) AddPost(ctx context.Context, post BlogPostRecord) error {
+func (store *BlogPostStoreMemoryImpl) AddPost(ctx context.Context, post BlogPostRecord) error {
 	if ctx.Err() != nil {
 		return errors.New("context expired")
 	}
@@ -25,14 +25,14 @@ func (store *BlogStoreMemoryImpl) AddPost(ctx context.Context, post BlogPostReco
 	return nil
 }
 
-func (store *BlogStoreMemoryImpl) CountPosts(ctx context.Context) (int, error) {
+func (store *BlogPostStoreMemoryImpl) CountPosts(ctx context.Context) (int, error) {
 	if ctx.Err() != nil {
 		return 0, errors.New("context expired")
 	}
 	return len(store.Posts), nil
 }
 
-func (store *BlogStoreMemoryImpl) GetPost(ctx context.Context, postID string) (*BlogPostRecord, error) {
+func (store *BlogPostStoreMemoryImpl) GetPost(ctx context.Context, postID string) (*BlogPostRecord, error) {
 	if ctx.Err() != nil {
 		return nil, errors.New("context expired")
 	}
@@ -44,7 +44,7 @@ func (store *BlogStoreMemoryImpl) GetPost(ctx context.Context, postID string) (*
 	return nil, errors.New("could not find post")
 }
 
-func (store *BlogStoreMemoryImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error) {
+func (store *BlogPostStoreMemoryImpl) GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPostRecord, error) {
 	if ctx.Err() != nil {
 		return nil, errors.New("context expired")
 	}
