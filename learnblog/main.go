@@ -59,9 +59,11 @@ func runServer() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	blogStore := BlogPostStoreImpl{DB: db}
+	postStore := BlogPostStoreImpl{DB: db}
+	tagStore := BlogTagStoreImpl{DB: db}
 	blogService := BlogService{
-		Store: blogStore,
+		PostStore: postStore,
+		TagStore:  tagStore,
 	}
 	blogRouter := BlogRouter{
 		Service: blogService,
