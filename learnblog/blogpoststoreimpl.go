@@ -50,3 +50,9 @@ func (store BlogPostStoreImpl) GetPostsPage(ctx context.Context, offset, limit i
 	}
 	return result, nil
 }
+func (store BlogPostStoreImpl) CountPostsWithTag(ctx context.Context, tag string) (int64, error) {
+	panic("not implemented")
+}
+func (store BlogPostStoreImpl) GetPostsPageByTag(ctx context.Context, offset, limit int, tag string) ([]BlogPost, error) {
+	panic("not implemented")
+}
