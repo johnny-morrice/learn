@@ -35,7 +35,7 @@ type BlogPostStore interface {
 }
 
 type BlogTagStore interface {
-	AddPostTags(ctx context.Context, blogPostID uint, tags []string) error
+	UpdatePostTags(ctx context.Context, blogPostID uint, tags []string) error
 }
 
 type BlogService struct {
@@ -85,7 +85,7 @@ func (srv BlogService) AddPost(ctx context.Context, post BlogPostViewModel) erro
 	if err != nil {
 		return err
 	}
-	return srv.TagStore.AddPostTags(ctx, record.ID, post.Tags)
+	return srv.TagStore.UpdatePostTags(ctx, record.ID, post.Tags)
 }
 
 func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*BlogPostPage, error) {

@@ -23,7 +23,7 @@ type PostTag struct {
 	BlogPost   BlogPost
 }
 
-func (store BlogTagStoreImpl) AddPostTags(ctx context.Context, blogPostID uint, tags []string) error {
+func (store BlogTagStoreImpl) UpdatePostTags(ctx context.Context, blogPostID uint, tags []string) error {
 	panic("not implemented")
 	// 1. find tags that already exist
 	// 2. create tags that dont exist
