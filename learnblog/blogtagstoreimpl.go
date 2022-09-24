@@ -15,8 +15,7 @@ type Tag struct {
 	Name string
 }
 
-// below should be called PostTag
-type BlogTag struct {
+type PostTag struct {
 	gorm.Model
 	TagID      int
 	Tag        Tag
