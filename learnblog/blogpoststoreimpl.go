@@ -18,8 +18,8 @@ type BlogPost struct {
 	Body  string
 }
 
-func (store BlogPostStoreImpl) AddPost(ctx context.Context, post BlogPost) error {
-	err := store.DB.WithContext(ctx).Create(&post).Error
+func (store BlogPostStoreImpl) AddPost(ctx context.Context, post *BlogPost) error {
+	err := store.DB.WithContext(ctx).Create(post).Error
 	if err != nil {
 		return fmt.Errorf("failed to create blogpost: %w", err)
 	}

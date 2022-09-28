@@ -26,7 +26,7 @@ func (post BlogPostViewModel) Validate() error {
 }
 
 type BlogPostStore interface {
-	AddPost(ctx context.Context, post BlogPost) error
+	AddPost(ctx context.Context, post *BlogPost) error
 	CountPosts(ctx context.Context) (int64, error)
 	CountPostsWithTag(ctx context.Context, tag string) (int64, error)
 	GetPost(ctx context.Context, postID string) (*BlogPost, error)
@@ -76,7 +76,7 @@ func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPostVie
 }
 
 func (srv BlogService) AddPost(ctx context.Context, post BlogPostViewModel) error {
-	record := BlogPost{
+	record := &BlogPost{
 		UUID:  post.UUID,
 		Title: post.Title,
 		Body:  post.Body,

@@ -67,7 +67,7 @@ func DiffTagNames(tags []Tag, tagNames []string) []string {
 func (store BlogTagStoreImpl) UnlinkedTagsForPost(ctx context.Context, blogPostID uint, tags []string) ([]Tag, error) {
 	out := []Tag{}
 
-	const sql = "SELECT * FROM tags where name IN ? AND id NOT IN (SELECT tag_id FROM post_tags where post_id = ?)"
+	const sql = "SELECT * FROM tags where name IN ? AND id NOT IN (SELECT tag_id FROM post_tags where blog_post_id = ?)"
 
 	err := store.DB.Raw(sql, tags, blogPostID).Scan(&out).Error
 	if err != nil {
@@ -93,7 +93,7 @@ func (store BlogTagStoreImpl) CreatePostTags(ctx context.Context, blogPostID uin
 }
 
 func (store BlogTagStoreImpl) DeletePostTagsNotInNames(ctx context.Context, blogPostID uint, tagNames []string) error {
-	const sql = "DELETE FROM tags WHERE id IN (SELECT pt.tag_id FROM post_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.post_id = ? AND t.name NOT IN ?)"
+	const sql = "DELETE FROM tags WHERE id IN (SELECT pt.tag_id FROM post_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.blog_post_id = ? AND t.name NOT IN ?)"
 
 	return store.DB.Exec(sql, blogPostID, tagNames).Error
 }
