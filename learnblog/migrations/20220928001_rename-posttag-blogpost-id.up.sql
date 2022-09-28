@@ -1,0 +1,1 @@
+ALTER TABLE post_tags RENAME COLUMN blog_id TO blog_post_id;
