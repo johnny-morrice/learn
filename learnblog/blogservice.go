@@ -11,6 +11,7 @@ type BlogPostViewModel struct {
 	UUID  string
 	Title string
 	Body  string
+	Tags  []string
 }
 
 func (post BlogPostViewModel) Validate() error {
@@ -24,15 +25,22 @@ func (post BlogPostViewModel) Validate() error {
 	return nil
 }
 
-type BlogStore interface {
-	AddPost(ctx context.Context, post BlogPost) error
+type BlogPostStore interface {
+	AddPost(ctx context.Context, post *BlogPost) error
 	CountPosts(ctx context.Context) (int64, error)
+	CountPostsWithTag(ctx context.Context, tag string) (int64, error)
 	GetPost(ctx context.Context, postID string) (*BlogPost, error)
 	GetPostsPage(ctx context.Context, offset, limit int) ([]BlogPost, error)
+	GetPostsPageByTag(ctx context.Context, offset, limit int, tag string) ([]BlogPost, error)
+}
+
+type BlogTagStore interface {
+	UpdatePostTags(ctx context.Context, blogPostID uint, tags []string) error
 }
 
 type BlogService struct {
-	Store BlogStore
+	PostStore BlogPostStore
+	TagStore  BlogTagStore
 }
 
 type BlogPostPage struct {
@@ -59,7 +67,7 @@ func BlogPostToBlogRec(post BlogPostViewModel) BlogPost {
 }
 
 func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPostViewModel, error) {
-	rec, err := srv.Store.GetPost(ctx, postID)
+	rec, err := srv.PostStore.GetPost(ctx, postID)
 	if err != nil {
 		return nil, err
 	}
@@ -68,12 +76,16 @@ func (srv BlogService) GetPost(ctx context.Context, postID string) (*BlogPostVie
 }
 
 func (srv BlogService) AddPost(ctx context.Context, post BlogPostViewModel) error {
-	record := BlogPost{
+	record := &BlogPost{
 		UUID:  post.UUID,
 		Title: post.Title,
 		Body:  post.Body,
 	}
-	return srv.Store.AddPost(ctx, record)
+	err := srv.PostStore.AddPost(ctx, record)
+	if err != nil {
+		return err
+	}
+	return srv.TagStore.UpdatePostTags(ctx, record.ID, post.Tags)
 }
 
 func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*BlogPostPage, error) {
@@ -81,12 +93,48 @@ func (srv BlogService) GetPostsPage(ctx context.Context, offset, limit int) (*Bl
 		return nil, errors.New("invalid parameters for GetPostsPage")
 	}
 
-	postRecords, err := srv.Store.GetPostsPage(ctx, offset, limit)
+	postRecords, err := srv.PostStore.GetPostsPage(ctx, offset, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	total, err := srv.Store.CountPosts(ctx)
+	total, err := srv.PostStore.CountPosts(ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	posts := []BlogPostViewModel{}
+
+	for _, rec := range postRecords {
+		posts = append(posts, BlogPostViewModel{
+			UUID:  rec.UUID,
+			Title: rec.Title,
+			Body:  rec.Body,
+		})
+	}
+
+	page := &BlogPostPage{
+		Total:  total,
+		Offset: offset,
+		Limit:  limit,
+		Posts:  posts,
+	}
+
+	return page, nil
+}
+
+func (srv BlogService) GetPostsPageByTag(ctx context.Context, offset, limit int, tag string) (*BlogPostPage, error) {
+	if offset < 0 || limit < 1 {
+		return nil, errors.New("invalid parameters for GetPostsPage")
+	}
+
+	postRecords, err := srv.PostStore.GetPostsPageByTag(ctx, offset, limit, tag)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := srv.PostStore.CountPostsWithTag(ctx, tag)
 
 	if err != nil {
 		return nil, err

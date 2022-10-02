@@ -63,6 +63,7 @@ func (r BlogRouter) CreatePost(ctx *gin.Context) {
 func (r BlogRouter) GetPostsPage(ctx *gin.Context) {
 	offsetText := ctx.Query("offset")
 	limitText := ctx.Query("limit")
+	tag := ctx.Query("tag")
 	if offsetText == "" {
 		offsetText = "0"
 	}
@@ -91,13 +92,25 @@ func (r BlogRouter) GetPostsPage(ctx *gin.Context) {
 		log.Printf("bad limit parameter: %v", limit)
 		return
 	}
-	page, err := r.Service.GetPostsPage(ctx, offset, limit)
+	if tag == "" {
+		page, err := r.Service.GetPostsPage(ctx, offset, limit)
+		if err != nil {
+			ctx.AbortWithStatus(http.StatusInternalServerError)
+			log.Printf("error getting page: %s", err)
+			return
+		}
+		ctx.JSON(http.StatusOK, page)
+		return
+	}
+
+	page, err := r.Service.GetPostsPageByTag(ctx, offset, limit, tag)
 	if err != nil {
 		ctx.AbortWithStatus(http.StatusInternalServerError)
 		log.Printf("error getting page: %s", err)
 		return
 	}
 	ctx.JSON(http.StatusOK, page)
+
 }
 
 func parseInt(text string) (int, error) {
