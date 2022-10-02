@@ -1,3 +1,3 @@
 module github.com/johnny-morrice/learn/vmlang
 
-go 1.19
+go 1.18
