@@ -30,3 +30,15 @@ func TestVM(t *testing.T) {
 		})
 	}
 }
+
+func TestBytecodeRepresentation(t *testing.T) {
+	testCases := map[uint64]Bytecode{
+		1: Push,
+		2: Pop,
+	}
+	for rep, bc := range testCases {
+		if rep != uint64(bc) {
+			t.Errorf("expected representation %v to match bytecode %v", rep, bc)
+		}
+	}
+}

@@ -18,3 +18,15 @@ func LoadBytecodeFile(filePath string) (*VmPackage, error) {
 }
 
 type Bytecode uint64
+
+const (
+	Push = Bytecode(iota + 1)
+	Pop
+	ReadMemory
+	WriteMemory
+	OutputByte
+	Goto
+	JumpNotZero
+	Call
+	Return
+)
