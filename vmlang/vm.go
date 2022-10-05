@@ -17,9 +17,9 @@ func (vm *VmPackage) Execute() error {
 		op := Bytecode(vm.Memory[vm.IP])
 		switch op {
 		case Push:
+			vm.SP++
 			x := vm.Memory[vm.IP+1]
 			vm.Memory[vm.SP] = x
-			vm.SP++
 			vm.IP += 2
 		case Pop:
 			vm.Memory[vm.SP] = 0
