@@ -1,6 +1,9 @@
 package main
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type VmPackage struct {
 	Memory []uint64
@@ -10,7 +13,58 @@ type VmPackage struct {
 }
 
 func (vm *VmPackage) Execute() error {
-	panic("not implemented")
+	for {
+		op := Bytecode(vm.Memory[vm.IP])
+		switch op {
+		case Push:
+			x := vm.Memory[vm.IP+1]
+			vm.Memory[vm.SP] = x
+			vm.SP++
+			vm.IP += 2
+		case Pop:
+			vm.Memory[vm.SP] = 0
+			vm.SP--
+			vm.IP++
+		case Increment:
+			vm.Memory[vm.SP]++
+			vm.IP++
+		case Decrement:
+			vm.Memory[vm.SP]--
+			vm.IP++
+		case Duplicate:
+			x := vm.Memory[vm.SP]
+			vm.SP++
+			vm.Memory[vm.SP] = x
+			vm.IP++
+		case ReadMemory:
+		case WriteMemory:
+		case OutputByte:
+			x := vm.Memory[vm.SP]
+			bs := []byte{byte(x)}
+			_, err := vm.Output.Write(bs)
+			if err != nil {
+				return err
+			}
+			vm.IP++
+		case Goto:
+			x := vm.Memory[vm.IP+1]
+			vm.IP = x
+		case JumpNotZero:
+			x := vm.Memory[vm.SP]
+			if x == 0 {
+				vm.IP++
+				continue
+			}
+			y := vm.Memory[vm.IP+1]
+			vm.IP = y
+		case Call:
+		case Return:
+		case Exit:
+			return nil
+		default:
+			return fmt.Errorf("Unknown bytecode: %v", op)
+		}
+	}
 }
 
 func LoadBytecodeFile(filePath string) (*VmPackage, error) {
@@ -32,4 +86,5 @@ const (
 	JumpNotZero
 	Call
 	Return
+	Exit
 )
