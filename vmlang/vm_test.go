@@ -10,9 +10,18 @@ import (
 func TestVM(t *testing.T) {
 	testCases := map[string]struct {
 		vm            *VmPackage
-		expected      string
+		expected      []byte
 		expectedError error
-	}{}
+	}{
+		"push": {
+			expected: []byte("z"),
+			vm: &VmPackage{
+				Memory: []uint64{1, 122, 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+				IP:     0,
+				SP:     10,
+			},
+		},
+	}
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {
 			output := &bytes.Buffer{}
