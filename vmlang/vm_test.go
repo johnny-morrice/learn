@@ -31,9 +31,9 @@ func TestVM(t *testing.T) {
 				t.Fatalf("expected error: %s but received: %s", testCase.expectedError, err)
 				return
 			}
-			actual := output.String()
+			actual := output.Bytes()
 			if !reflect.DeepEqual(testCase.expected, actual) {
-				t.Fatalf("expected output: %s but received: %s", testCase.expected, actual)
+				t.Fatalf("expected output: %v but received: %v", testCase.expected, actual)
 				return
 			}
 		})
