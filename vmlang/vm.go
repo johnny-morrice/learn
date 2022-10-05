@@ -22,6 +22,9 @@ type Bytecode uint64
 const (
 	Push = Bytecode(iota + 1)
 	Pop
+	Increment
+	Decrement
+	Duplicate
 	ReadMemory
 	WriteMemory
 	OutputByte
