@@ -37,7 +37,17 @@ func (vm *VmPackage) Execute() error {
 			vm.Memory[vm.SP] = x
 			vm.IP++
 		case ReadMemory:
+			i := vm.Memory[vm.SP]
+			x := vm.Memory[i]
+			vm.Memory[vm.SP] = x
+			vm.IP++
 		case WriteMemory:
+			i := vm.Memory[vm.SP]
+			x := vm.Memory[vm.SP-1]
+			vm.Memory[i] = x
+			vm.Memory[vm.SP] = 0
+			vm.SP--
+			vm.IP++
 		case OutputByte:
 			x := vm.Memory[vm.SP]
 			bs := []byte{byte(x)}
@@ -61,6 +71,13 @@ func (vm *VmPackage) Execute() error {
 		case Return:
 		case Exit:
 			return nil
+		case Multiply:
+			first, second := vm.Memory[vm.SP], vm.Memory[vm.SP-1]
+			x := first * second
+			vm.Memory[vm.SP] = 0
+			vm.SP--
+			vm.Memory[vm.SP] = x
+			vm.IP++
 		default:
 			return fmt.Errorf("Unknown bytecode: %v", op)
 		}
@@ -69,6 +86,7 @@ func (vm *VmPackage) Execute() error {
 
 func LoadBytecodeFile(filePath string) (*VmPackage, error) {
 	panic("not implemented")
+
 }
 
 type Bytecode uint64
@@ -87,4 +105,5 @@ const (
 	Call
 	Return
 	Exit
+	Multiply
 )
