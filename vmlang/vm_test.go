@@ -39,13 +39,13 @@ func TestVM(t *testing.T) {
 	facM[25] = uint64(Exit)
 
 	testCases := map[string]struct {
-		vm            *VmPackage
+		vm            *VirtualMachine
 		expected      []byte
 		expectedError error
 	}{
 		"push": {
 			expected: []byte("z"),
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 122, 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -53,7 +53,7 @@ func TestVM(t *testing.T) {
 		},
 		"pop": {
 			expected: []byte("j"),
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 106, 1, 122, 2, 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -61,7 +61,7 @@ func TestVM(t *testing.T) {
 		},
 		"increment": {
 			expected: []byte{10},
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 9, uint64(Increment), 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -69,7 +69,7 @@ func TestVM(t *testing.T) {
 		},
 		"decrement": {
 			expected: []byte{8},
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 9, uint64(Decrement), 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -77,7 +77,7 @@ func TestVM(t *testing.T) {
 		},
 		"duplicate": {
 			expected: []byte{9, 9},
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 9, uint64(Duplicate), 8, 2, 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -85,7 +85,7 @@ func TestVM(t *testing.T) {
 		},
 		"multiply": {
 			expected: []byte{18},
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: []uint64{1, 9, 1, 2, uint64(Multiply), 8, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
 				IP:     0,
 				SP:     10,
@@ -93,7 +93,7 @@ func TestVM(t *testing.T) {
 		},
 		"factorial": {
 			expected: []byte{24},
-			vm: &VmPackage{
+			vm: &VirtualMachine{
 				Memory: facM,
 				IP:     0,
 				SP:     50,

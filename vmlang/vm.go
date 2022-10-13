@@ -5,14 +5,14 @@ import (
 	"io"
 )
 
-type VmPackage struct {
+type VirtualMachine struct {
 	Memory []uint64
 	Output io.Writer
 	SP     uint64
 	IP     uint64
 }
 
-func (vm *VmPackage) Execute() error {
+func (vm *VirtualMachine) Execute() error {
 	for {
 		op := Bytecode(vm.Memory[vm.IP])
 		switch op {
@@ -79,12 +79,12 @@ func (vm *VmPackage) Execute() error {
 			vm.Memory[vm.SP] = x
 			vm.IP++
 		default:
-			return fmt.Errorf("Unknown bytecode: %v", op)
+			return fmt.Errorf("unknown bytecode: %v", op)
 		}
 	}
 }
 
-func LoadBytecodeFile(filePath string) (*VmPackage, error) {
+func LoadBytecodeFile(filePath string) (*VirtualMachine, error) {
 	panic("not implemented")
 
 }
