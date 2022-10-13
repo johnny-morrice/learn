@@ -38,11 +38,13 @@ func (vm *VirtualMachine) Execute() error {
 			vm.IP++
 		case ReadMemory:
 			i := vm.Memory[vm.SP]
+			vm.growMemory(i)
 			x := vm.Memory[i]
 			vm.Memory[vm.SP] = x
 			vm.IP++
 		case WriteMemory:
 			i := vm.Memory[vm.SP]
+			vm.growMemory(i)
 			x := vm.Memory[vm.SP-1]
 			vm.Memory[i] = x
 			vm.Memory[vm.SP] = 0
@@ -81,6 +83,18 @@ func (vm *VirtualMachine) Execute() error {
 		default:
 			return fmt.Errorf("unknown bytecode: %v", op)
 		}
+	}
+}
+
+func (vm *VirtualMachine) growMemory(i uint64) {
+	memSize := uint64(len(vm.Memory))
+	if memSize-1 < i {
+		expand := memSize - i
+		if expand < memSize {
+			expand = memSize
+		}
+		extra := make([]uint64, expand)
+		vm.Memory = append(vm.Memory, extra...)
 	}
 }
 
