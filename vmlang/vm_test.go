@@ -99,6 +99,14 @@ func TestVM(t *testing.T) {
 				SP:     50,
 			},
 		},
+		"dynamic memory": {
+			expected: []byte{64},
+			vm: &VirtualMachine{
+				Memory: []uint64{uint64(Push), 64, uint64(Push), 2048, uint64(WriteMemory), uint64(Pop), uint64(Push), 2048, uint64(ReadMemory), uint64(OutputByte), uint64(Exit), 0, 0, 0, 0, 0, 0, 0, 0},
+				IP:     0,
+				SP:     12,
+			},
+		},
 	}
 	for name, testCase := range testCases {
 		t.Run(name, func(t *testing.T) {

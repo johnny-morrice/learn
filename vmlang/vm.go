@@ -13,8 +13,12 @@ type VirtualMachine struct {
 }
 
 func (vm *VirtualMachine) Execute() error {
+	const debug = false
 	for {
 		op := Bytecode(vm.Memory[vm.IP])
+		if debug {
+			fmt.Printf("vm debug; op: %v; sp: %v; ip: %v\n", op, vm.SP, vm.IP)
+		}
 		switch op {
 		case Push:
 			vm.SP++
@@ -89,7 +93,7 @@ func (vm *VirtualMachine) Execute() error {
 func (vm *VirtualMachine) growMemory(i uint64) {
 	memSize := uint64(len(vm.Memory))
 	if memSize-1 < i {
-		expand := memSize - i
+		expand := (i - memSize) + 1
 		if expand < memSize {
 			expand = memSize
 		}
