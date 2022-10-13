@@ -11,7 +11,7 @@ push 100
 rmem
 mult
 push 100
-wrmem
+wmem
 pop
 goto @fac
 push 100
