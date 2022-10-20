@@ -5,16 +5,20 @@ import (
 	"io"
 )
 
-type VmPackage struct {
+type VirtualMachine struct {
 	Memory []uint64
 	Output io.Writer
 	SP     uint64
 	IP     uint64
 }
 
-func (vm *VmPackage) Execute() error {
+func (vm *VirtualMachine) Execute() error {
+	const debug = false
 	for {
 		op := Bytecode(vm.Memory[vm.IP])
+		if debug {
+			fmt.Printf("vm debug; op: %v; sp: %v; ip: %v\n", op, vm.SP, vm.IP)
+		}
 		switch op {
 		case Push:
 			vm.SP++
@@ -37,7 +41,19 @@ func (vm *VmPackage) Execute() error {
 			vm.Memory[vm.SP] = x
 			vm.IP++
 		case ReadMemory:
+			i := vm.Memory[vm.SP]
+			vm.growMemory(i)
+			x := vm.Memory[i]
+			vm.Memory[vm.SP] = x
+			vm.IP++
 		case WriteMemory:
+			i := vm.Memory[vm.SP]
+			vm.growMemory(i)
+			x := vm.Memory[vm.SP-1]
+			vm.Memory[i] = x
+			vm.Memory[vm.SP] = 0
+			vm.SP--
+			vm.IP++
 		case OutputByte:
 			x := vm.Memory[vm.SP]
 			bs := []byte{byte(x)}
@@ -61,14 +77,34 @@ func (vm *VmPackage) Execute() error {
 		case Return:
 		case Exit:
 			return nil
+		case Multiply:
+			first, second := vm.Memory[vm.SP], vm.Memory[vm.SP-1]
+			x := first * second
+			vm.Memory[vm.SP] = 0
+			vm.SP--
+			vm.Memory[vm.SP] = x
+			vm.IP++
 		default:
-			return fmt.Errorf("Unknown bytecode: %v", op)
+			return fmt.Errorf("unknown bytecode: %v", op)
 		}
 	}
 }
 
-func LoadBytecodeFile(filePath string) (*VmPackage, error) {
+func (vm *VirtualMachine) growMemory(i uint64) {
+	memSize := uint64(len(vm.Memory))
+	if memSize-1 < i {
+		expand := (i - memSize) + 1
+		if expand < memSize {
+			expand = memSize
+		}
+		extra := make([]uint64, expand)
+		vm.Memory = append(vm.Memory, extra...)
+	}
+}
+
+func LoadBytecodeFile(filePath string) (*VirtualMachine, error) {
 	panic("not implemented")
+
 }
 
 type Bytecode uint64
@@ -87,4 +123,5 @@ const (
 	Call
 	Return
 	Exit
+	Multiply
 )

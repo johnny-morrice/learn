@@ -1,0 +1,20 @@
+push 4
+push 100
+wmem
+@fac:
+decr
+jnz @body
+goto @output
+@body:
+dupl
+push 100
+rmem
+mult
+push 100
+wmem
+pop
+goto @fac
+push 100
+rmem
+outb
+exit

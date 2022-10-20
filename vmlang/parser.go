@@ -1,5 +1,5 @@
 package main
 
-func ParseFile(fileName string) (*VmPackage, error) {
+func ParseFile(fileName string) (*VirtualMachine, error) {
 	panic("not implemented")
 }
