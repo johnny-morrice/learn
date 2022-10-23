@@ -1,20 +1,21 @@
+var acc
 push 4
-push 100
+push acc
 wmem
-@fac:
+fac:
 decr
-jnz @body
-goto @output
-@body:
+jnz body
+goto output
+body:
 dupl
-push 100
+push acc
 rmem
 mult
-push 100
+push acc
 wmem
 pop
-goto @fac
-push 100
+goto fac
+push acc
 rmem
 outb
 exit
