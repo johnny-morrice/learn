@@ -7,11 +7,12 @@ import (
 )
 
 type VirtualMachine struct {
-	Memory   []uint64
-	Output   io.Writer
-	SP       uint64
-	StackEnd uint64
-	IP       uint64
+	Memory    []uint64
+	Output    io.Writer
+	SP        uint64
+	StackEnd  uint64
+	HeapStart uint64
+	IP        uint64
 }
 
 func (vm *VirtualMachine) Execute() error {

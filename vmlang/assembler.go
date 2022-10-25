@@ -159,6 +159,7 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 	}
 	vm.StackEnd = stackEnd
 	vm.SP = stackStart
+	vm.HeapStart = heapStart
 
 	return vm, nil
 }
