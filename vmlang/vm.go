@@ -1,15 +1,17 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 )
 
 type VirtualMachine struct {
-	Memory []uint64
-	Output io.Writer
-	SP     uint64
-	IP     uint64
+	Memory   []uint64
+	Output   io.Writer
+	SP       uint64
+	StackEnd uint64
+	IP       uint64
 }
 
 func (vm *VirtualMachine) Execute() error {
@@ -21,7 +23,10 @@ func (vm *VirtualMachine) Execute() error {
 		}
 		switch op {
 		case Push:
-			vm.SP++
+			err := vm.incrementSP()
+			if err != nil {
+				return err
+			}
 			x := vm.Memory[vm.IP+1]
 			vm.Memory[vm.SP] = x
 			vm.IP += 2
@@ -37,7 +42,10 @@ func (vm *VirtualMachine) Execute() error {
 			vm.IP++
 		case Duplicate:
 			x := vm.Memory[vm.SP]
-			vm.SP++
+			err := vm.incrementSP()
+			if err != nil {
+				return err
+			}
 			vm.Memory[vm.SP] = x
 			vm.IP++
 		case ReadMemory:
@@ -88,6 +96,15 @@ func (vm *VirtualMachine) Execute() error {
 			return fmt.Errorf("unknown bytecode: %v", op)
 		}
 	}
+}
+
+func (vm *VirtualMachine) incrementSP() error {
+	vm.SP++
+	if vm.SP >= vm.StackEnd {
+		return errors.New("stack overflow")
+	}
+
+	return nil
 }
 
 func (vm *VirtualMachine) growMemory(i uint64) {
