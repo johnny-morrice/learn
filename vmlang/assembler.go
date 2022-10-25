@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type intrParam struct {
 	value     *uint64
@@ -8,10 +10,10 @@ type intrParam struct {
 	labelName string
 }
 type intrOp struct {
-	size        int
-	instruction Bytecode
-	parameters  []intrParam
-	label       string
+	size       int
+	op         Bytecode
+	parameters []intrParam
+	label      string
 }
 
 type assembler struct {
@@ -45,15 +47,19 @@ func (asm *assembler) defineLabel(labelName string) error {
 	return nil
 }
 
-func (asm *assembler) addIntructionStmt(stmt opStmt) {
-	intr := intrOp{}
-	intr.size = 1 + len(stmt.parameters)
+func (asm *assembler) addOpStmt(stmt opStmt) {
+	iOp := intrOp{}
+	iOp.size = 1 + len(stmt.parameters)
+	iOp.op = stmt.op
+
+	// fmt.Printf("add op stmt: %v\n", stmt)
 
 	for _, param := range stmt.parameters {
 		iParam := intrParam{}
 
 		if param.variable == "" {
 			iParam.value = &param.literal
+			iOp.parameters = append(iOp.parameters, iParam)
 			continue
 		}
 
@@ -69,10 +75,10 @@ func (asm *assembler) addIntructionStmt(stmt opStmt) {
 			iParam.labelName = param.variable
 		}
 		iParam.value = addr
-		intr.parameters = append(intr.parameters, iParam)
+		iOp.parameters = append(iOp.parameters, iParam)
 	}
 
-	asm.stmts = append(asm.stmts, intr)
+	asm.stmts = append(asm.stmts, iOp)
 }
 
 func (asm *assembler) addLabelStmt(stmt labelStmt) {
@@ -110,7 +116,7 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 
 	for _, stmt := range tree.stmts {
 		if stmt.opStmt != nil {
-			asm.addIntructionStmt(*stmt.opStmt)
+			asm.addOpStmt(*stmt.opStmt)
 		}
 		if stmt.labelStmt != nil {
 			asm.addLabelStmt(*stmt.labelStmt)
@@ -137,14 +143,18 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 		asm.setNameAddress(varName, heapStart+uint64(offset))
 	}
 
-	memory := make([]uint64, heapStart)
+	vm.Memory = make([]uint64, heapStart)
+	index := 0
 	for _, iStmt := range asm.stmts {
 		if iStmt.label != "" {
 			continue
 		}
-		memory = append(memory, uint64(iStmt.instruction))
+		// fmt.Printf("intermediate op: %v\n", iStmt)
+		vm.Memory[index] = uint64(iStmt.op)
+		index++
 		for _, iParam := range iStmt.parameters {
-			memory = append(memory, *iParam.value)
+			vm.Memory[index] = *iParam.value
+			index++
 		}
 	}
 	vm.StackEnd = stackEnd

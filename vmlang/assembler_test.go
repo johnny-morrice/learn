@@ -13,7 +13,25 @@ func TestAssembler(t *testing.T) {
 		expectedError  error
 	}
 
-	testCases := map[string]testCase{}
+	testCases := map[string]testCase{
+		"simple push": {
+			ast: asmScript{
+				stmts: []asmStmt{
+					{
+						opStmt: &opStmt{
+							op: Push,
+							parameters: []param{
+								{
+									literal: 4,
+								},
+							},
+						},
+					},
+				},
+			},
+			expectedMemory: []uint64{1, 4, 0},
+		},
+	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
@@ -28,6 +46,7 @@ func TestAssembler(t *testing.T) {
 					act := actualMem[i]
 					if exp != act {
 						t.Errorf("first difference at %v\nexpected: %v\nactual: %v", i, exp, act)
+						return
 					}
 				}
 			}
