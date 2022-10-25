@@ -94,6 +94,9 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 	*ptr = addr
 }
 
+const stackSize = 2_000_000
+const gapSize = 100
+
 func assemble(tree asmScript) (*VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
@@ -133,8 +136,6 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 		bytecodeSize += uint64(iStmt.size)
 	}
 
-	const stackSize = 2_000_000
-	const gapSize = 100
 	stackStart := bytecodeSize + gapSize
 	stackEnd := stackStart + stackSize
 	heapStart := stackStart + stackSize + gapSize
