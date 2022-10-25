@@ -1,12 +1,91 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"reflect"
 	"testing"
 )
 
-func TestAssembler(t *testing.T) {
+func TestAssembleAndRunProgram(t *testing.T) {
+	type testCase struct {
+		ast            asmScript
+		expectedOutput []byte
+		expectedError  error
+	}
+
+	testCases := map[string]testCase{
+		"goto label": {
+			ast: asmScript{
+				stmts: []asmStmt{
+					{
+						opStmt: &opStmt{
+							op: Push,
+							parameters: []param{
+								{
+									literal: 5,
+								},
+							},
+						},
+					},
+					{
+						opStmt: &opStmt{
+							op: Goto,
+							parameters: []param{
+								{
+									variable: "TestLabel",
+								},
+							},
+						},
+					},
+					{
+						opStmt: &opStmt{
+							op: Pop,
+						},
+					},
+					{
+						labelStmt: &labelStmt{
+							labelName: "TestLabel",
+						},
+					},
+					{
+						opStmt: &opStmt{
+							op: OutputByte,
+						},
+					},
+					{
+						opStmt: &opStmt{
+							op: Exit,
+						},
+					},
+				},
+			},
+			expectedOutput: []byte{5},
+		},
+	}
+
+	for name, tc := range testCases {
+		t.Run(name, func(t *testing.T) {
+			vm, err := assemble(tc.ast)
+			if !errors.Is(err, tc.expectedError) {
+				t.Fatalf("expected assemble err: %s\nactual: %s", tc.expectedError, err)
+			}
+			buf := &bytes.Buffer{}
+			vm.Output = buf
+			err = vm.Execute()
+			if !errors.Is(err, tc.expectedError) {
+				t.Fatalf("expected vm err: %s\nactual: %s", tc.expectedError, err)
+			}
+			actual := buf.Bytes()
+			if !reflect.DeepEqual(tc.expectedOutput, actual) {
+				t.Fatalf("expected output: %v but received: %v", tc.expectedOutput, actual)
+				return
+			}
+		})
+	}
+}
+
+func TestAssembleAsmScript(t *testing.T) {
 	type testCase struct {
 		ast              asmScript
 		expectedBytecode []uint64
