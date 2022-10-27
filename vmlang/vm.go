@@ -143,3 +143,38 @@ const (
 	Exit
 	Multiply
 )
+
+func (code Bytecode) String() string {
+	switch code {
+	case Push:
+		return "Push"
+	case Pop:
+		return "Pop"
+	case Increment:
+		return "Increment"
+	case Decrement:
+		return "Decrement"
+	case Duplicate:
+		return "Duplicate"
+	case ReadMemory:
+		return "ReadMemory"
+	case WriteMemory:
+		return "WriteMemory"
+	case OutputByte:
+		return "OutputByte"
+	case Goto:
+		return "Goto"
+	case JumpNotZero:
+		return "JumpNotZero"
+	case Call:
+		return "Call"
+	case Return:
+		return "Return"
+	case Exit:
+		return "Exit"
+	case Multiply:
+		return "Multiply"
+	default:
+		return fmt.Sprint(uint64(code))
+	}
+}

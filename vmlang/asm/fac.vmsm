@@ -15,6 +15,7 @@ push acc
 wmem
 pop
 goto fac
+output:
 push acc
 rmem
 outb

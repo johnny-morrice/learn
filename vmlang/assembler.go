@@ -1,19 +1,62 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
+
+var ErrAssembler = errors.New("assembly error")
 
 type intrParam struct {
 	value     *uint64
 	varName   string
 	labelName string
 }
+
+func (param intrParam) getParamName() string {
+	if param.varName != "" {
+		return param.varName
+	}
+	return param.labelName
+}
+
+func (param intrParam) missingValueError() error {
+	name := param.getParamName()
+	if name != "" {
+		return fmt.Errorf("variable not defined: %v; %w", name, ErrAssembler)
+	}
+	return fmt.Errorf("missing variable definition: %w", ErrAssembler)
+}
+
+func (param intrParam) valueString() string {
+	if param.value == nil {
+		return "nil"
+	}
+	return fmt.Sprint(*param.value)
+}
+
+func (param intrParam) String() string {
+	if param.varName != "" {
+		return fmt.Sprintf("[varName: %v, value: %v]", param.varName, param.valueString())
+	}
+	if param.labelName != "" {
+		return fmt.Sprintf("[labelName: %v, value: %v]", param.labelName, param.valueString())
+	}
+	return fmt.Sprintf("[value: %v]", param.valueString())
+}
+
 type intrOp struct {
-	size       int
 	op         Bytecode
+	size       int
 	parameters []intrParam
 	label      string
+}
+
+func (op intrOp) String() string {
+	if op.label != "" {
+		return fmt.Sprintf("[label: %v]", op.label)
+	}
+	return fmt.Sprintf("[op: %v, size: %v, params: %v]", op.op, op.size, op.parameters)
 }
 
 type assembler struct {
@@ -26,7 +69,7 @@ type assembler struct {
 func (asm *assembler) defineVar(varName string) error {
 	_, exists := asm.nameTable[varName]
 	if exists {
-		return fmt.Errorf("duplicate variable definition: %s", varName)
+		return fmt.Errorf("duplicate variable definition: %s; %w", varName, ErrAssembler)
 	}
 	asm.varTable[varName] = len(asm.varTable)
 	val := uint64(0)
@@ -38,7 +81,7 @@ func (asm *assembler) defineVar(varName string) error {
 func (asm *assembler) defineLabel(labelName string) error {
 	_, exists := asm.nameTable[labelName]
 	if exists {
-		return fmt.Errorf("duplicate variable definition: %s", labelName)
+		return fmt.Errorf("duplicate variable definition: %s; %w", labelName, ErrAssembler)
 	}
 	asm.labelTable[labelName] = struct{}{}
 	val := uint64(0)
@@ -152,10 +195,12 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 		if iStmt.label != "" {
 			continue
 		}
-		// fmt.Printf("intermediate op: %v\n", iStmt)
 		vm.Memory[index] = uint64(iStmt.op)
 		index++
 		for _, iParam := range iStmt.parameters {
+			if iParam.value == nil {
+				return nil, iParam.missingValueError()
+			}
 			vm.Memory[index] = *iParam.value
 			index++
 		}
