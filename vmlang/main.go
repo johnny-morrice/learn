@@ -22,7 +22,11 @@ func main() {
 }
 
 func runScript() error {
-	vm, err := ParseFile(*scriptInput)
+	ast, err := ParseFile(*scriptInput)
+	if err != nil {
+		return err
+	}
+	vm, err := Assemble(ast)
 	if err != nil {
 		return err
 	}
