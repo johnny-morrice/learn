@@ -1,5 +1,17 @@
 package main
 
-func ParseFile(fileName string) (*VirtualMachine, error) {
+import "io"
+
+func ParseFile(fileName string) (*asmScript, error) {
+	panic("not implemented")
+}
+
+type ParseContext struct {
+	FileName string
+	Line     string
+	Char     string
+}
+
+func Parse(pCtx ParseContext, reader io.Reader) (*asmScript, error) {
 	panic("not implemented")
 }

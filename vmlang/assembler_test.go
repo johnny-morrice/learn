@@ -63,116 +63,14 @@ func TestAssembleAndRunProgram(t *testing.T) {
 			expectedOutput: []byte{5},
 		},
 		"factorial": {
-			ast: asmScript{
-				stmts: []asmStmt{
-					{
-						varStmt: &varStmt{
-							[]string{"acc"},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Push, []param{{literal: 4}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Push, []param{{variable: "acc"}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: WriteMemory,
-						},
-					},
-					{
-						labelStmt: &labelStmt{"fac"},
-					},
-					{
-						opStmt: &opStmt{
-							op: Decrement,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							JumpNotZero, []param{{variable: "body"}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Goto, []param{{variable: "output"}},
-						},
-					},
-					{
-						labelStmt: &labelStmt{"body"},
-					},
-					{
-						opStmt: &opStmt{
-							op: Duplicate,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Push, []param{{variable: "acc"}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: ReadMemory,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: Multiply,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Push, []param{{variable: "acc"}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: WriteMemory,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: Pop,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							Goto, []param{{variable: "fac"}},
-						},
-					},
-					{
-						labelStmt: &labelStmt{"output"},
-					},
-					{
-						opStmt: &opStmt{
-							Push, []param{{variable: "acc"}},
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: ReadMemory,
-						},
-					},
-					{
-						opStmt: &opStmt{
-							op: OutputByte,
-						},
-					},
-				},
-			},
+			ast:            factorialAst(),
 			expectedOutput: []byte{24},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			vm, err := assemble(tc.ast)
+			vm, err := Assemble(&tc.ast)
 			if !errors.Is(err, tc.expectedError) {
 				t.Fatalf("expected assemble err: %s\nactual: %s", tc.expectedError, err)
 			}
@@ -188,6 +86,112 @@ func TestAssembleAndRunProgram(t *testing.T) {
 				return
 			}
 		})
+	}
+}
+
+func factorialAst() asmScript {
+	return asmScript{
+		stmts: []asmStmt{
+			{
+				varStmt: &varStmt{
+					[]string{"acc"},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Push, []param{{literal: 4}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Push, []param{{variable: "acc"}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: WriteMemory,
+				},
+			},
+			{
+				labelStmt: &labelStmt{"fac"},
+			},
+			{
+				opStmt: &opStmt{
+					op: Decrement,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					JumpNotZero, []param{{variable: "body"}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Goto, []param{{variable: "output"}},
+				},
+			},
+			{
+				labelStmt: &labelStmt{"body"},
+			},
+			{
+				opStmt: &opStmt{
+					op: Duplicate,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Push, []param{{variable: "acc"}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: ReadMemory,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: Multiply,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Push, []param{{variable: "acc"}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: WriteMemory,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: Pop,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					Goto, []param{{variable: "fac"}},
+				},
+			},
+			{
+				labelStmt: &labelStmt{"output"},
+			},
+			{
+				opStmt: &opStmt{
+					Push, []param{{variable: "acc"}},
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: ReadMemory,
+				},
+			},
+			{
+				opStmt: &opStmt{
+					op: OutputByte,
+				},
+			},
+		},
 	}
 }
 
@@ -324,7 +328,7 @@ func TestAssembleAsmScript(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			vm, err := assemble(tc.ast)
+			vm, err := Assemble(&tc.ast)
 			if !errors.Is(err, tc.expectedError) {
 				t.Fatalf("expected err: %s\nactual: %s", tc.expectedError, err)
 			}

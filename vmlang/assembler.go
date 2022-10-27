@@ -140,7 +140,7 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func assemble(tree asmScript) (*VirtualMachine, error) {
+func Assemble(tree *asmScript) (*VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
