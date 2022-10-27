@@ -18,4 +18,3 @@ goto fac
 push acc
 rmem
 outb
-exit

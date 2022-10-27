@@ -20,8 +20,8 @@ func TestAssembleAndRunProgram(t *testing.T) {
 				stmts: []asmStmt{
 					{
 						opStmt: &opStmt{
-							op: Push,
-							parameters: []param{
+							Push,
+							[]param{
 								{
 									literal: 5,
 								},
@@ -30,8 +30,8 @@ func TestAssembleAndRunProgram(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: Goto,
-							parameters: []param{
+							Goto,
+							[]param{
 								{
 									variable: "TestLabel",
 								},
@@ -45,7 +45,7 @@ func TestAssembleAndRunProgram(t *testing.T) {
 					},
 					{
 						labelStmt: &labelStmt{
-							labelName: "TestLabel",
+							"TestLabel",
 						},
 					},
 					{
@@ -62,6 +62,109 @@ func TestAssembleAndRunProgram(t *testing.T) {
 			},
 			expectedOutput: []byte{5},
 		},
+		// "factorial": {
+		// 	ast: asmScript{
+		// 		stmts: []asmStmt{
+		// 			{
+		// 				varStmt: &varStmt{
+		// 					[]string{"acc"},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Push, []param{{literal: 4}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Push, []param{{variable: "acc"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: WriteMemory,
+		// 				},
+		// 			},
+		// 			{
+		// 				labelStmt: &labelStmt{"fac"},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: Decrement,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					JumpNotZero, []param{{variable: "body"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Goto, []param{{variable: "output"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				labelStmt: &labelStmt{"body"},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: Duplicate,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Push, []param{{variable: "acc"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: ReadMemory,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: Multiply,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Push, []param{{variable: "acc"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: WriteMemory,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: Pop,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Goto, []param{{variable: "fac"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					Push, []param{{variable: "acc"}},
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: ReadMemory,
+		// 				},
+		// 			},
+		// 			{
+		// 				opStmt: &opStmt{
+		// 					op: OutputByte,
+		// 				},
+		// 			},
+		// 		},
+		// 	},
+		// 	expectedOutput: []byte{24},
+		// },
 	}
 
 	for name, tc := range testCases {
@@ -109,7 +212,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(Push), 4, 0},
+			expectedBytecode: []uint64{uint64(Push), 4, uint64(Exit), 0},
 		},
 		"write to heap var": {
 			ast: asmScript{
@@ -131,7 +234,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(WriteMemory), 2 + gapSize + stackSize + gapSize, 0},
+			expectedBytecode: []uint64{uint64(WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(Exit), 0},
 		},
 		"var can be defined anywhere": {
 			ast: asmScript{
@@ -153,7 +256,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(WriteMemory), 2 + gapSize + stackSize + gapSize, 0},
+			expectedBytecode: []uint64{uint64(WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(Exit), 0},
 		},
 		"go to label": {
 			ast: asmScript{
@@ -200,7 +303,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(Push), 4, uint64(Push), 5, uint64(Pop), uint64(Goto), 2, 0},
+			expectedBytecode: []uint64{uint64(Push), 4, uint64(Push), 5, uint64(Pop), uint64(Goto), 2, uint64(Exit), 0},
 		},
 	}
 

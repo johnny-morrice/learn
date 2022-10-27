@@ -136,6 +136,8 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 		bytecodeSize += uint64(iStmt.size)
 	}
 
+	bytecodeSize++
+
 	stackStart := bytecodeSize + gapSize
 	stackEnd := stackStart + stackSize
 	heapStart := stackStart + stackSize + gapSize
@@ -158,6 +160,7 @@ func assemble(tree asmScript) (*VirtualMachine, error) {
 			index++
 		}
 	}
+	vm.Memory[index] = uint64(Exit)
 	vm.StackEnd = stackEnd
 	vm.SP = stackStart
 	vm.HeapStart = heapStart
