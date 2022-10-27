@@ -147,33 +147,33 @@ const (
 func (code Bytecode) String() string {
 	switch code {
 	case Push:
-		return "Push"
+		return "push"
 	case Pop:
-		return "Pop"
+		return "pop"
 	case Increment:
-		return "Increment"
+		return "incr"
 	case Decrement:
-		return "Decrement"
+		return "decr"
 	case Duplicate:
-		return "Duplicate"
+		return "dupl"
 	case ReadMemory:
-		return "ReadMemory"
+		return "rmem"
 	case WriteMemory:
-		return "WriteMemory"
+		return "wmem"
 	case OutputByte:
-		return "OutputByte"
+		return "outb"
 	case Goto:
-		return "Goto"
+		return "goto"
 	case JumpNotZero:
-		return "JumpNotZero"
+		return "jnz"
 	case Call:
-		return "Call"
+		return "call"
 	case Return:
-		return "Return"
+		return "rtn"
 	case Exit:
-		return "Exit"
+		return "exit"
 	case Multiply:
-		return "Multiply"
+		return "mult"
 	default:
 		return fmt.Sprint(uint64(code))
 	}

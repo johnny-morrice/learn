@@ -1,6 +1,8 @@
 package main
 
-import "io"
+import (
+	"io"
+)
 
 func ParseFile(fileName string) (*asmScript, error) {
 	panic("not implemented")
@@ -13,5 +15,5 @@ type ParseContext struct {
 }
 
 func Parse(pCtx ParseContext, reader io.Reader) (*asmScript, error) {
-	panic("not implemented")
+	return &asmScript{}, nil
 }

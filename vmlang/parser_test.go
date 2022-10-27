@@ -38,7 +38,7 @@ func TestParserCreatesAST(t *testing.T) {
 				t.Fatalf("expected err:%s\nactual: %s", tc.expectedError, err)
 			}
 			if !reflect.DeepEqual(tc.expectedAst, actualAst) {
-				t.Errorf("expected: %v\nactual: %v", tc.expectedAst, actualAst)
+				t.Errorf("expected: %v\n\nbut was: %v", tc.expectedAst, actualAst)
 			}
 		})
 	}
