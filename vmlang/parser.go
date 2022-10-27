@@ -1,19 +1,66 @@
 package main
 
-import (
-	"io"
-)
+type ParseCombinator func(ParseContext) ParseContext
+
+func PAnd(combs ...ParseCombinator) ParseCombinator {
+	return func(pCtx ParseContext) ParseContext {
+		loopCtx := pCtx
+		for _, combinator := range combs {
+			loopCtx = combinator(loopCtx)
+			if loopCtx.Failed {
+				return loopCtx
+			}
+		}
+		return loopCtx
+	}
+}
+
+func POr(combs ...ParseCombinator) ParseCombinator {
+	return func(pCtx ParseContext) ParseContext {
+		loopCtx := pCtx
+		for _, combinator := range combs {
+			loopCtx = combinator(loopCtx)
+			if !loopCtx.Failed {
+				return loopCtx
+			}
+
+		}
+		pCtx.Failed = true
+		return pCtx
+	}
+}
 
 func ParseFile(fileName string) (*asmScript, error) {
 	panic("not implemented")
 }
 
-type ParseContext struct {
-	FileName string
-	Line     string
-	Char     string
+func PEof() ParseCombinator {
+	return func(pCtx ParseContext) ParseContext {
+		pCtx.Failed = len(pCtx.RemainingInput) != 0
+		return pCtx
+	}
 }
 
-func Parse(pCtx ParseContext, reader io.Reader) (*asmScript, error) {
+func PStmt() ParseCombinator {
+	panic("not implemented")
+}
+
+func PAst() ParseCombinator {
+
+	return func(pCtx ParseContext) ParseContext {
+		f := POr(PEof(), PAnd(PStmt(), PAst()))
+		return f(pCtx)
+	}
+}
+
+type ParseContext struct {
+	FileName       string
+	Line           string
+	Char           string
+	RemainingInput string
+	Failed         bool
+}
+
+func Parse(pCtx ParseContext) (*asmScript, error) {
 	return &asmScript{}, nil
 }
