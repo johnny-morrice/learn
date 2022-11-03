@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"errors"
@@ -6,15 +6,18 @@ import (
 	"testing"
 
 	_ "embed"
+
+	"github.com/johnny-morrice/learn/vmlang/assembler"
+	"github.com/johnny-morrice/learn/vmlang/example"
 )
 
-//go:embed asm/fac.vmsm
+//go:embed fac.vmsm
 var factorialSourceCode string
 
 func TestParserCreatesAST(t *testing.T) {
 	type testCase struct {
 		pCtx          ParseContext
-		expectedAst   asmScript
+		expectedAst   assembler.AsmScript
 		expectedError error
 	}
 
@@ -24,7 +27,7 @@ func TestParserCreatesAST(t *testing.T) {
 				FileName:       "fac.vmsm",
 				RemainingInput: factorialSourceCode,
 			},
-			expectedAst: factorialAst(),
+			expectedAst: example.FactorialAst(),
 		},
 	}
 

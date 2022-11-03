@@ -4,6 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"os"
+
+	"github.com/johnny-morrice/learn/vmlang/assembler"
+	"github.com/johnny-morrice/learn/vmlang/assembler/parser"
 )
 
 var scriptInput = flag.String("input", "", "input script")
@@ -22,11 +25,11 @@ func main() {
 }
 
 func runScript() error {
-	ast, err := ParseFile(*scriptInput)
+	ast, err := parser.ParseFile(*scriptInput)
 	if err != nil {
 		return err
 	}
-	vm, err := Assemble(ast)
+	vm, err := assembler.Assemble(ast)
 	if err != nil {
 		return err
 	}

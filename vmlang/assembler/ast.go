@@ -1,17 +1,19 @@
-package main
+package assembler
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
-type asmStmt struct {
+type AsmStmt struct {
 	varStmt   *varStmt
 	opStmt    *opStmt
 	labelStmt *labelStmt
 }
 
-func (stmt asmStmt) String() string {
+func (stmt AsmStmt) String() string {
 	if stmt.varStmt != nil {
 		return stmt.varStmt.String()
 	}
@@ -21,7 +23,7 @@ func (stmt asmStmt) String() string {
 	if stmt.labelStmt != nil {
 		return stmt.labelStmt.String()
 	}
-	return "[invalid asmStmt]"
+	return "[invalid AsmStmt]"
 }
 
 type varStmt struct {
@@ -33,7 +35,7 @@ func (stmt varStmt) String() string {
 }
 
 type opStmt struct {
-	op         Bytecode
+	op         vm.Bytecode
 	parameters []param
 }
 
@@ -67,11 +69,11 @@ func (p param) String() string {
 	return fmt.Sprint(p.literal)
 }
 
-type asmScript struct {
-	stmts []asmStmt
+type AsmScript struct {
+	stmts []AsmStmt
 }
 
-func (tree asmScript) String() string {
+func (tree AsmScript) String() string {
 	builder := strings.Builder{}
 	for i, stmt := range tree.stmts {
 		if i > 0 {

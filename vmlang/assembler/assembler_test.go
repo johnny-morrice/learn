@@ -1,26 +1,28 @@
-package main
+package assembler
 
 import (
 	"bytes"
 	"errors"
 	"reflect"
 	"testing"
+
+	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
 func TestAssembleAndRunProgram(t *testing.T) {
 	type testCase struct {
-		ast            asmScript
+		ast            AsmScript
 		expectedOutput []byte
 		expectedError  error
 	}
 
 	testCases := map[string]testCase{
 		"goto label": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						opStmt: &opStmt{
-							Push,
+							vm.Push,
 							[]param{
 								{
 									literal: 5,
@@ -30,7 +32,7 @@ func TestAssembleAndRunProgram(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							Goto,
+							vm.Goto,
 							[]param{
 								{
 									variable: "TestLabel",
@@ -40,7 +42,7 @@ func TestAssembleAndRunProgram(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: Pop,
+							op: vm.Pop,
 						},
 					},
 					{
@@ -50,12 +52,12 @@ func TestAssembleAndRunProgram(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: OutputByte,
+							op: vm.OutputByte,
 						},
 					},
 					{
 						opStmt: &opStmt{
-							op: Exit,
+							op: vm.Exit,
 						},
 					},
 				},
@@ -89,9 +91,9 @@ func TestAssembleAndRunProgram(t *testing.T) {
 	}
 }
 
-func factorialAst() asmScript {
-	return asmScript{
-		stmts: []asmStmt{
+func factorialAst() AsmScript {
+	return AsmScript{
+		stmts: []AsmStmt{
 			{
 				varStmt: &varStmt{
 					[]string{"acc"},
@@ -99,17 +101,17 @@ func factorialAst() asmScript {
 			},
 			{
 				opStmt: &opStmt{
-					Push, []param{{literal: 4}},
+					vm.Push, []param{{literal: 4}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					Push, []param{{variable: "acc"}},
+					vm.Push, []param{{variable: "acc"}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: WriteMemory,
+					op: vm.WriteMemory,
 				},
 			},
 			{
@@ -117,17 +119,17 @@ func factorialAst() asmScript {
 			},
 			{
 				opStmt: &opStmt{
-					op: Decrement,
+					op: vm.Decrement,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					JumpNotZero, []param{{variable: "body"}},
+					vm.JumpNotZero, []param{{variable: "body"}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					Goto, []param{{variable: "output"}},
+					vm.Goto, []param{{variable: "output"}},
 				},
 			},
 			{
@@ -135,42 +137,42 @@ func factorialAst() asmScript {
 			},
 			{
 				opStmt: &opStmt{
-					op: Duplicate,
+					op: vm.Duplicate,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					Push, []param{{variable: "acc"}},
+					vm.Push, []param{{variable: "acc"}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: ReadMemory,
+					op: vm.ReadMemory,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: Multiply,
+					op: vm.Multiply,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					Push, []param{{variable: "acc"}},
+					vm.Push, []param{{variable: "acc"}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: WriteMemory,
+					op: vm.WriteMemory,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: Pop,
+					op: vm.Pop,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					Goto, []param{{variable: "fac"}},
+					vm.Goto, []param{{variable: "fac"}},
 				},
 			},
 			{
@@ -178,17 +180,17 @@ func factorialAst() asmScript {
 			},
 			{
 				opStmt: &opStmt{
-					Push, []param{{variable: "acc"}},
+					vm.Push, []param{{variable: "acc"}},
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: ReadMemory,
+					op: vm.ReadMemory,
 				},
 			},
 			{
 				opStmt: &opStmt{
-					op: OutputByte,
+					op: vm.OutputByte,
 				},
 			},
 		},
@@ -197,7 +199,7 @@ func factorialAst() asmScript {
 
 func TestAssembleAsmScript(t *testing.T) {
 	type testCase struct {
-		ast              asmScript
+		ast              AsmScript
 		expectedBytecode []uint64
 		expectedHeap     []uint64
 		expectedError    error
@@ -205,11 +207,11 @@ func TestAssembleAsmScript(t *testing.T) {
 
 	testCases := map[string]testCase{
 		"simple push": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						opStmt: &opStmt{
-							op: Push,
+							op: vm.Push,
 							parameters: []param{
 								{
 									literal: 4,
@@ -219,11 +221,11 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(Push), 4, uint64(Exit), 0},
+			expectedBytecode: []uint64{uint64(vm.Push), 4, uint64(vm.Exit), 0},
 		},
 		"write to heap var": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						varStmt: &varStmt{
 							varNames: []string{"TestVar"},
@@ -231,7 +233,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: WriteMemory,
+							op: vm.WriteMemory,
 							parameters: []param{
 								{
 									variable: "TestVar",
@@ -241,14 +243,14 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(Exit), 0},
+			expectedBytecode: []uint64{uint64(vm.WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(vm.Exit), 0},
 		},
 		"var can be defined anywhere": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						opStmt: &opStmt{
-							op: WriteMemory,
+							op: vm.WriteMemory,
 							parameters: []param{
 								{
 									variable: "TestVar",
@@ -263,14 +265,14 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(Exit), 0},
+			expectedBytecode: []uint64{uint64(vm.WriteMemory), 3 + gapSize + stackSize + gapSize, uint64(vm.Exit), 0},
 		},
 		"go to missing label": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						opStmt: &opStmt{
-							Goto, []param{{variable: "foo"}},
+							vm.Goto, []param{{variable: "foo"}},
 						},
 					},
 				},
@@ -278,11 +280,11 @@ func TestAssembleAsmScript(t *testing.T) {
 			expectedError: ErrAssembler,
 		},
 		"go to label": {
-			ast: asmScript{
-				stmts: []asmStmt{
+			ast: AsmScript{
+				stmts: []AsmStmt{
 					{
 						opStmt: &opStmt{
-							op: Push,
+							op: vm.Push,
 							parameters: []param{
 								{
 									literal: 4,
@@ -297,7 +299,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: Push,
+							op: vm.Push,
 							parameters: []param{
 								{
 									literal: 5,
@@ -307,12 +309,12 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 					{
 						opStmt: &opStmt{
-							op: Pop,
+							op: vm.Pop,
 						},
 					},
 					{
 						opStmt: &opStmt{
-							op: Goto,
+							op: vm.Goto,
 							parameters: []param{
 								{
 									variable: "TestLabel",
@@ -322,7 +324,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 				},
 			},
-			expectedBytecode: []uint64{uint64(Push), 4, uint64(Push), 5, uint64(Pop), uint64(Goto), 2, uint64(Exit), 0},
+			expectedBytecode: []uint64{uint64(vm.Push), 4, uint64(vm.Push), 5, uint64(vm.Pop), uint64(vm.Goto), 2, uint64(vm.Exit), 0},
 		},
 	}
 

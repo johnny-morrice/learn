@@ -1,8 +1,10 @@
-package main
+package assembler
 
 import (
 	"errors"
 	"fmt"
+
+	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
 var ErrAssembler = errors.New("assembly error")
@@ -46,7 +48,7 @@ func (param intrParam) String() string {
 }
 
 type intrOp struct {
-	op         Bytecode
+	op         vm.Bytecode
 	size       int
 	parameters []intrParam
 	label      string
@@ -140,14 +142,14 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func Assemble(tree *asmScript) (*VirtualMachine, error) {
+func Assemble(tree *AsmScript) (*vm.VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
 		labelTable: map[string]struct{}{},
 	}
 
-	vm := &VirtualMachine{}
+	machine := &vm.VirtualMachine{}
 
 	for _, stmt := range tree.stmts {
 		if stmt.varStmt != nil {
@@ -189,26 +191,26 @@ func Assemble(tree *asmScript) (*VirtualMachine, error) {
 		asm.setNameAddress(varName, heapStart+uint64(offset))
 	}
 
-	vm.Memory = make([]uint64, heapStart)
+	machine.Memory = make([]uint64, heapStart)
 	index := 0
 	for _, iStmt := range asm.stmts {
 		if iStmt.label != "" {
 			continue
 		}
-		vm.Memory[index] = uint64(iStmt.op)
+		machine.Memory[index] = uint64(iStmt.op)
 		index++
 		for _, iParam := range iStmt.parameters {
 			if iParam.value == nil {
 				return nil, iParam.missingValueError()
 			}
-			vm.Memory[index] = *iParam.value
+			machine.Memory[index] = *iParam.value
 			index++
 		}
 	}
-	vm.Memory[index] = uint64(Exit)
-	vm.StackEnd = stackEnd
-	vm.SP = stackStart
-	vm.HeapStart = heapStart
+	machine.Memory[index] = uint64(vm.Exit)
+	machine.StackEnd = stackEnd
+	machine.SP = stackStart
+	machine.HeapStart = heapStart
 
-	return vm, nil
+	return machine, nil
 }

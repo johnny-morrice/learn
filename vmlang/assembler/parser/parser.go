@@ -1,4 +1,6 @@
-package main
+package parser
+
+import "github.com/johnny-morrice/learn/vmlang/assembler"
 
 type ParseCombinator func(ParseContext) ParseContext
 
@@ -30,7 +32,7 @@ func POr(combs ...ParseCombinator) ParseCombinator {
 	}
 }
 
-func ParseFile(fileName string) (*asmScript, error) {
+func ParseFile(fileName string) (*assembler.AsmScript, error) {
 	panic("not implemented")
 }
 
@@ -61,6 +63,6 @@ type ParseContext struct {
 	Failed         bool
 }
 
-func Parse(pCtx ParseContext) (*asmScript, error) {
-	return &asmScript{}, nil
+func Parse(pCtx ParseContext) (*assembler.AsmScript, error) {
+	return &assembler.AsmScript{}, nil
 }
