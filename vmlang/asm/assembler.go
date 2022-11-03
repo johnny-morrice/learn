@@ -1,4 +1,4 @@
-package assembler
+package asm
 
 import (
 	"errors"
@@ -153,7 +153,7 @@ func Assemble(tree *AST) (*vm.VirtualMachine, error) {
 
 	for _, stmt := range tree.Stmts {
 		if stmt.Var != nil {
-			for _, varName := range stmt.Var.varNames {
+			for _, varName := range stmt.Var.VarNames {
 				asm.defineVar(varName)
 			}
 		}

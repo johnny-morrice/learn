@@ -7,7 +7,7 @@ import (
 
 	_ "embed"
 
-	"github.com/johnny-morrice/learn/vmlang/assembler"
+	"github.com/johnny-morrice/learn/vmlang/asm"
 	"github.com/johnny-morrice/learn/vmlang/example"
 )
 
@@ -17,7 +17,7 @@ var factorialSourceCode string
 func TestParserCreatesAST(t *testing.T) {
 	type testCase struct {
 		pCtx          ParseContext
-		expectedAst   assembler.AST
+		expectedAst   asm.AST
 		expectedError error
 	}
 

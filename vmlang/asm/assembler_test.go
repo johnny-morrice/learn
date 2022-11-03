@@ -1,4 +1,4 @@
-package assembler
+package asm
 
 import (
 	"bytes"
@@ -228,7 +228,7 @@ func TestAssembleAsmScript(t *testing.T) {
 				Stmts: []Stmt{
 					{
 						Var: &VarStmt{
-							varNames: []string{"TestVar"},
+							VarNames: []string{"TestVar"},
 						},
 					},
 					{
@@ -260,7 +260,7 @@ func TestAssembleAsmScript(t *testing.T) {
 					},
 					{
 						Var: &VarStmt{
-							varNames: []string{"TestVar"},
+							VarNames: []string{"TestVar"},
 						},
 					},
 				},

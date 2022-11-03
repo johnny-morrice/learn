@@ -1,4 +1,4 @@
-package assembler
+package asm
 
 import (
 	"fmt"
@@ -27,11 +27,11 @@ func (stmt Stmt) String() string {
 }
 
 type VarStmt struct {
-	varNames []string
+	VarNames []string
 }
 
 func (stmt VarStmt) String() string {
-	return "var " + strings.Join(stmt.varNames, " ")
+	return "var " + strings.Join(stmt.VarNames, " ")
 }
 
 type OpStmt struct {
