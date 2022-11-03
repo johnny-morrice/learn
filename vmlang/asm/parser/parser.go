@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/johnny-morrice/learn/vmlang/asm"
+import "github.com/johnny-morrice/learn/vmlang/asm/ast"
 
 type ParseCombinator func(ParseContext) ParseContext
 
@@ -32,7 +32,7 @@ func POr(combs ...ParseCombinator) ParseCombinator {
 	}
 }
 
-func ParseFile(fileName string) (*asm.AST, error) {
+func ParseFile(fileName string) (*ast.AST, error) {
 	panic("not implemented")
 }
 
@@ -63,6 +63,6 @@ type ParseContext struct {
 	Failed         bool
 }
 
-func Parse(pCtx ParseContext) (*asm.AST, error) {
-	return &asm.AST{}, nil
+func Parse(pCtx ParseContext) (*ast.AST, error) {
+	return &ast.AST{}, nil
 }

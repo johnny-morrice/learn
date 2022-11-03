@@ -7,17 +7,14 @@ import (
 
 	_ "embed"
 
-	"github.com/johnny-morrice/learn/vmlang/asm"
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
 	"github.com/johnny-morrice/learn/vmlang/example"
 )
-
-//go:embed fac.vmsm
-var factorialSourceCode string
 
 func TestParserCreatesAST(t *testing.T) {
 	type testCase struct {
 		pCtx          ParseContext
-		expectedAst   asm.AST
+		expectedAst   ast.AST
 		expectedError error
 	}
 
@@ -25,7 +22,7 @@ func TestParserCreatesAST(t *testing.T) {
 		"factorial": {
 			pCtx: ParseContext{
 				FileName:       "fac.vmsm",
-				RemainingInput: factorialSourceCode,
+				RemainingInput: example.FactorialSourceCode,
 			},
 			expectedAst: example.FactorialAst(),
 		},

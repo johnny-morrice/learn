@@ -1,109 +1,114 @@
 package example
 
 import (
-	"github.com/johnny-morrice/learn/vmlang/asm"
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
 	"github.com/johnny-morrice/learn/vmlang/vm"
+
+	_ "embed"
 )
 
-func FactorialAst() asm.AST {
-	return asm.AST{
-		Stmts: []asm.Stmt{
+//go:embed asm/fac.vmsm
+var FactorialSourceCode string
+
+func FactorialAst() ast.AST {
+	return ast.AST{
+		Stmts: []ast.Stmt{
 			{
-				Var: &asm.VarStmt{
+				Var: &ast.VarStmt{
 					[]string{"acc"},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Push, []asm.Param{{Literal: 4}},
+				Op: &ast.OpStmt{
+					vm.Push, []ast.Param{{Literal: 4}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Push, []asm.Param{{Variable: "acc"}},
+				Op: &ast.OpStmt{
+					vm.Push, []ast.Param{{Variable: "acc"}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.WriteMemory,
 				},
 			},
 			{
-				Label: &asm.LabelStmt{"fac"},
+				Label: &ast.LabelStmt{"fac"},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.Decrement,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.JumpNotZero, []asm.Param{{Variable: "body"}},
+				Op: &ast.OpStmt{
+					vm.JumpNotZero, []ast.Param{{Variable: "body"}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Goto, []asm.Param{{Variable: "output"}},
+				Op: &ast.OpStmt{
+					vm.Goto, []ast.Param{{Variable: "output"}},
 				},
 			},
 			{
-				Label: &asm.LabelStmt{"body"},
+				Label: &ast.LabelStmt{"body"},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.Duplicate,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Push, []asm.Param{{Variable: "acc"}},
+				Op: &ast.OpStmt{
+					vm.Push, []ast.Param{{Variable: "acc"}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.ReadMemory,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.Multiply,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Push, []asm.Param{{Variable: "acc"}},
+				Op: &ast.OpStmt{
+					vm.Push, []ast.Param{{Variable: "acc"}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.WriteMemory,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.Pop,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Goto, []asm.Param{{Variable: "fac"}},
+				Op: &ast.OpStmt{
+					vm.Goto, []ast.Param{{Variable: "fac"}},
 				},
 			},
 			{
-				Label: &asm.LabelStmt{"output"},
+				Label: &ast.LabelStmt{"output"},
 			},
 			{
-				Op: &asm.OpStmt{
-					vm.Push, []asm.Param{{Variable: "acc"}},
+				Op: &ast.OpStmt{
+					vm.Push, []ast.Param{{Variable: "acc"}},
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.ReadMemory,
 				},
 			},
 			{
-				Op: &asm.OpStmt{
+				Op: &ast.OpStmt{
 					Op: vm.OutputByte,
 				},
 			},

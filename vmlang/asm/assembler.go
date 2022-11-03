@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
 	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
@@ -92,7 +93,7 @@ func (asm *assembler) defineLabel(labelName string) error {
 	return nil
 }
 
-func (asm *assembler) addOpStmt(stmt OpStmt) {
+func (asm *assembler) addOpStmt(stmt ast.OpStmt) {
 	iOp := intrOp{}
 	iOp.size = 1 + len(stmt.Params)
 	iOp.op = stmt.Op
@@ -126,7 +127,7 @@ func (asm *assembler) addOpStmt(stmt OpStmt) {
 	asm.stmts = append(asm.stmts, iOp)
 }
 
-func (asm *assembler) addLabelStmt(stmt LabelStmt) {
+func (asm *assembler) addLabelStmt(stmt ast.LabelStmt) {
 	intr := intrOp{}
 
 	intr.label = stmt.Label
@@ -142,7 +143,7 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func Assemble(tree *AST) (*vm.VirtualMachine, error) {
+func Assemble(tree *ast.AST) (*vm.VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
