@@ -1,58 +1,13 @@
 package parser
 
-import "github.com/johnny-morrice/learn/vmlang/asm/ast"
+import (
+	"errors"
 
-type ParseCombinator func(ParseContext) ParseContext
-
-func PAnd(combs ...ParseCombinator) ParseCombinator {
-	return func(pCtx ParseContext) ParseContext {
-		loopCtx := pCtx
-		for _, combinator := range combs {
-			loopCtx = combinator(loopCtx)
-			if loopCtx.Failed {
-				return loopCtx
-			}
-		}
-		return loopCtx
-	}
-}
-
-func POr(combs ...ParseCombinator) ParseCombinator {
-	return func(pCtx ParseContext) ParseContext {
-		loopCtx := pCtx
-		for _, combinator := range combs {
-			loopCtx = combinator(loopCtx)
-			if !loopCtx.Failed {
-				return loopCtx
-			}
-
-		}
-		pCtx.Failed = true
-		return pCtx
-	}
-}
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
+)
 
 func ParseFile(fileName string) (*ast.AST, error) {
 	panic("not implemented")
-}
-
-func PEof() ParseCombinator {
-	return func(pCtx ParseContext) ParseContext {
-		pCtx.Failed = len(pCtx.RemainingInput) != 0
-		return pCtx
-	}
-}
-
-func PStmt() ParseCombinator {
-	panic("not implemented")
-}
-
-func PAst() ParseCombinator {
-
-	return func(pCtx ParseContext) ParseContext {
-		f := POr(PEof(), PAnd(PStmt(), PAst()))
-		return f(pCtx)
-	}
 }
 
 type ParseContext struct {
@@ -63,6 +18,10 @@ type ParseContext struct {
 	Failed         bool
 }
 
-func Parse(pCtx ParseContext) (*ast.AST, error) {
+func Parse(pc ParseContext) (*ast.AST, error) {
+	pc = AST()(pc)
+	if pc.Failed {
+		return nil, errors.New("parse error")
+	}
 	return &ast.AST{}, nil
 }

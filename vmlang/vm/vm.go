@@ -142,7 +142,17 @@ const (
 	Return
 	Exit
 	Multiply
+	// Make sure you update the Bytecodes array below.
 )
+
+func Bytecodes() []Bytecode {
+	const max = Multiply
+	bc := []Bytecode{}
+	for i := Push; i <= max; i++ {
+		bc = append(bc, i)
+	}
+	return bc
+}
 
 func (code Bytecode) String() string {
 	switch code {
