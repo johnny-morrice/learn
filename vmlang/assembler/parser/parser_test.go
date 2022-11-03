@@ -17,7 +17,7 @@ var factorialSourceCode string
 func TestParserCreatesAST(t *testing.T) {
 	type testCase struct {
 		pCtx          ParseContext
-		expectedAst   assembler.AsmScript
+		expectedAst   assembler.AST
 		expectedError error
 	}
 

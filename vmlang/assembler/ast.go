@@ -7,75 +7,75 @@ import (
 	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
-type AsmStmt struct {
-	varStmt   *varStmt
-	opStmt    *opStmt
-	labelStmt *labelStmt
+type Stmt struct {
+	Var   *VarStmt
+	Op    *OpStmt
+	Label *LabelStmt
 }
 
-func (stmt AsmStmt) String() string {
-	if stmt.varStmt != nil {
-		return stmt.varStmt.String()
+func (stmt Stmt) String() string {
+	if stmt.Var != nil {
+		return stmt.Var.String()
 	}
-	if stmt.opStmt != nil {
-		return stmt.opStmt.String()
+	if stmt.Op != nil {
+		return stmt.Op.String()
 	}
-	if stmt.labelStmt != nil {
-		return stmt.labelStmt.String()
+	if stmt.Label != nil {
+		return stmt.Label.String()
 	}
 	return "[invalid AsmStmt]"
 }
 
-type varStmt struct {
+type VarStmt struct {
 	varNames []string
 }
 
-func (stmt varStmt) String() string {
+func (stmt VarStmt) String() string {
 	return "var " + strings.Join(stmt.varNames, " ")
 }
 
-type opStmt struct {
-	op         vm.Bytecode
-	parameters []param
+type OpStmt struct {
+	Op     vm.Bytecode
+	Params []Param
 }
 
-func (stmt opStmt) String() string {
+func (stmt OpStmt) String() string {
 	builder := strings.Builder{}
-	builder.WriteString(stmt.op.String())
-	for _, param := range stmt.parameters {
+	builder.WriteString(stmt.Op.String())
+	for _, param := range stmt.Params {
 		builder.WriteString(" ")
 		builder.WriteString(param.String())
 	}
 	return builder.String()
 }
 
-type labelStmt struct {
-	labelName string
+type LabelStmt struct {
+	Label string
 }
 
-func (stmt labelStmt) String() string {
-	return stmt.labelName + ":"
+func (stmt LabelStmt) String() string {
+	return stmt.Label + ":"
 }
 
-type param struct {
-	literal  uint64
-	variable string
+type Param struct {
+	Literal  uint64
+	Variable string
 }
 
-func (p param) String() string {
-	if p.variable != "" {
-		return p.variable
+func (p Param) String() string {
+	if p.Variable != "" {
+		return p.Variable
 	}
-	return fmt.Sprint(p.literal)
+	return fmt.Sprint(p.Literal)
 }
 
-type AsmScript struct {
-	stmts []AsmStmt
+type AST struct {
+	Stmts []Stmt
 }
 
-func (tree AsmScript) String() string {
+func (tree AST) String() string {
 	builder := strings.Builder{}
-	for i, stmt := range tree.stmts {
+	for i, stmt := range tree.Stmts {
 		if i > 0 {
 			builder.WriteString("\n")
 		}

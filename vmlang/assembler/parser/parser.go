@@ -32,7 +32,7 @@ func POr(combs ...ParseCombinator) ParseCombinator {
 	}
 }
 
-func ParseFile(fileName string) (*assembler.AsmScript, error) {
+func ParseFile(fileName string) (*assembler.AST, error) {
 	panic("not implemented")
 }
 
@@ -63,6 +63,6 @@ type ParseContext struct {
 	Failed         bool
 }
 
-func Parse(pCtx ParseContext) (*assembler.AsmScript, error) {
-	return &assembler.AsmScript{}, nil
+func Parse(pCtx ParseContext) (*assembler.AST, error) {
+	return &assembler.AST{}, nil
 }

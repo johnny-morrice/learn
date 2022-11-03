@@ -92,32 +92,32 @@ func (asm *assembler) defineLabel(labelName string) error {
 	return nil
 }
 
-func (asm *assembler) addOpStmt(stmt opStmt) {
+func (asm *assembler) addOpStmt(stmt OpStmt) {
 	iOp := intrOp{}
-	iOp.size = 1 + len(stmt.parameters)
-	iOp.op = stmt.op
+	iOp.size = 1 + len(stmt.Params)
+	iOp.op = stmt.Op
 
 	// fmt.Printf("add op stmt: %v\n", stmt)
 
-	for _, param := range stmt.parameters {
+	for _, param := range stmt.Params {
 		iParam := intrParam{}
 
-		if param.variable == "" {
-			iParam.value = &param.literal
+		if param.Variable == "" {
+			iParam.value = &param.Literal
 			iOp.parameters = append(iOp.parameters, iParam)
 			continue
 		}
 
-		_, varExists := asm.varTable[param.variable]
-		_, labelExists := asm.labelTable[param.variable]
+		_, varExists := asm.varTable[param.Variable]
+		_, labelExists := asm.labelTable[param.Variable]
 
-		addr := asm.nameTable[param.variable]
+		addr := asm.nameTable[param.Variable]
 
 		if varExists {
-			iParam.varName = param.variable
+			iParam.varName = param.Variable
 		}
 		if labelExists {
-			iParam.labelName = param.variable
+			iParam.labelName = param.Variable
 		}
 		iParam.value = addr
 		iOp.parameters = append(iOp.parameters, iParam)
@@ -126,10 +126,10 @@ func (asm *assembler) addOpStmt(stmt opStmt) {
 	asm.stmts = append(asm.stmts, iOp)
 }
 
-func (asm *assembler) addLabelStmt(stmt labelStmt) {
+func (asm *assembler) addLabelStmt(stmt LabelStmt) {
 	intr := intrOp{}
 
-	intr.label = stmt.labelName
+	intr.label = stmt.Label
 
 	asm.stmts = append(asm.stmts, intr)
 }
@@ -142,7 +142,7 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func Assemble(tree *AsmScript) (*vm.VirtualMachine, error) {
+func Assemble(tree *AST) (*vm.VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
@@ -151,23 +151,23 @@ func Assemble(tree *AsmScript) (*vm.VirtualMachine, error) {
 
 	machine := &vm.VirtualMachine{}
 
-	for _, stmt := range tree.stmts {
-		if stmt.varStmt != nil {
-			for _, varName := range stmt.varStmt.varNames {
+	for _, stmt := range tree.Stmts {
+		if stmt.Var != nil {
+			for _, varName := range stmt.Var.varNames {
 				asm.defineVar(varName)
 			}
 		}
-		if stmt.labelStmt != nil {
-			asm.defineLabel(stmt.labelStmt.labelName)
+		if stmt.Label != nil {
+			asm.defineLabel(stmt.Label.Label)
 		}
 	}
 
-	for _, stmt := range tree.stmts {
-		if stmt.opStmt != nil {
-			asm.addOpStmt(*stmt.opStmt)
+	for _, stmt := range tree.Stmts {
+		if stmt.Op != nil {
+			asm.addOpStmt(*stmt.Op)
 		}
-		if stmt.labelStmt != nil {
-			asm.addLabelStmt(*stmt.labelStmt)
+		if stmt.Label != nil {
+			asm.addLabelStmt(*stmt.Label)
 		}
 	}
 
