@@ -1,8 +1,11 @@
-package main
+package asm
 
 import (
 	"errors"
 	"fmt"
+
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
+	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
 var ErrAssembler = errors.New("assembly error")
@@ -46,7 +49,7 @@ func (param intrParam) String() string {
 }
 
 type intrOp struct {
-	op         Bytecode
+	op         vm.Bytecode
 	size       int
 	parameters []intrParam
 	label      string
@@ -90,32 +93,32 @@ func (asm *assembler) defineLabel(labelName string) error {
 	return nil
 }
 
-func (asm *assembler) addOpStmt(stmt opStmt) {
+func (asm *assembler) addOpStmt(stmt ast.OpStmt) {
 	iOp := intrOp{}
-	iOp.size = 1 + len(stmt.parameters)
-	iOp.op = stmt.op
+	iOp.size = 1 + len(stmt.Params)
+	iOp.op = stmt.Op
 
 	// fmt.Printf("add op stmt: %v\n", stmt)
 
-	for _, param := range stmt.parameters {
+	for _, param := range stmt.Params {
 		iParam := intrParam{}
 
-		if param.variable == "" {
-			iParam.value = &param.literal
+		if param.Variable == "" {
+			iParam.value = &param.Literal
 			iOp.parameters = append(iOp.parameters, iParam)
 			continue
 		}
 
-		_, varExists := asm.varTable[param.variable]
-		_, labelExists := asm.labelTable[param.variable]
+		_, varExists := asm.varTable[param.Variable]
+		_, labelExists := asm.labelTable[param.Variable]
 
-		addr := asm.nameTable[param.variable]
+		addr := asm.nameTable[param.Variable]
 
 		if varExists {
-			iParam.varName = param.variable
+			iParam.varName = param.Variable
 		}
 		if labelExists {
-			iParam.labelName = param.variable
+			iParam.labelName = param.Variable
 		}
 		iParam.value = addr
 		iOp.parameters = append(iOp.parameters, iParam)
@@ -124,10 +127,10 @@ func (asm *assembler) addOpStmt(stmt opStmt) {
 	asm.stmts = append(asm.stmts, iOp)
 }
 
-func (asm *assembler) addLabelStmt(stmt labelStmt) {
+func (asm *assembler) addLabelStmt(stmt ast.LabelStmt) {
 	intr := intrOp{}
 
-	intr.label = stmt.labelName
+	intr.label = stmt.Label
 
 	asm.stmts = append(asm.stmts, intr)
 }
@@ -140,32 +143,32 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func Assemble(tree *asmScript) (*VirtualMachine, error) {
+func Assemble(tree *ast.AST) (*vm.VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
 		labelTable: map[string]struct{}{},
 	}
 
-	vm := &VirtualMachine{}
+	machine := &vm.VirtualMachine{}
 
-	for _, stmt := range tree.stmts {
-		if stmt.varStmt != nil {
-			for _, varName := range stmt.varStmt.varNames {
+	for _, stmt := range tree.Stmts {
+		if stmt.Var != nil {
+			for _, varName := range stmt.Var.VarNames {
 				asm.defineVar(varName)
 			}
 		}
-		if stmt.labelStmt != nil {
-			asm.defineLabel(stmt.labelStmt.labelName)
+		if stmt.Label != nil {
+			asm.defineLabel(stmt.Label.Label)
 		}
 	}
 
-	for _, stmt := range tree.stmts {
-		if stmt.opStmt != nil {
-			asm.addOpStmt(*stmt.opStmt)
+	for _, stmt := range tree.Stmts {
+		if stmt.Op != nil {
+			asm.addOpStmt(*stmt.Op)
 		}
-		if stmt.labelStmt != nil {
-			asm.addLabelStmt(*stmt.labelStmt)
+		if stmt.Label != nil {
+			asm.addLabelStmt(*stmt.Label)
 		}
 	}
 
@@ -189,26 +192,26 @@ func Assemble(tree *asmScript) (*VirtualMachine, error) {
 		asm.setNameAddress(varName, heapStart+uint64(offset))
 	}
 
-	vm.Memory = make([]uint64, heapStart)
+	machine.Memory = make([]uint64, heapStart)
 	index := 0
 	for _, iStmt := range asm.stmts {
 		if iStmt.label != "" {
 			continue
 		}
-		vm.Memory[index] = uint64(iStmt.op)
+		machine.Memory[index] = uint64(iStmt.op)
 		index++
 		for _, iParam := range iStmt.parameters {
 			if iParam.value == nil {
 				return nil, iParam.missingValueError()
 			}
-			vm.Memory[index] = *iParam.value
+			machine.Memory[index] = *iParam.value
 			index++
 		}
 	}
-	vm.Memory[index] = uint64(Exit)
-	vm.StackEnd = stackEnd
-	vm.SP = stackStart
-	vm.HeapStart = heapStart
+	machine.Memory[index] = uint64(vm.Exit)
+	machine.StackEnd = stackEnd
+	machine.SP = stackStart
+	machine.HeapStart = heapStart
 
-	return vm, nil
+	return machine, nil
 }
