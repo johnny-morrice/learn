@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"strconv"
 	"unicode"
 	"unicode/utf8"
 
@@ -12,13 +13,12 @@ type ParseCombinator func(pc ParseContext) ParseContext
 
 func Seq(combs ...ParseCombinator) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		initCtx := pc
 		loopCtx := pc
 		for _, combinator := range combs {
 			loopCtx = combinator(loopCtx)
 			if loopCtx.Failed {
-				initCtx.Failed = true
-				return initCtx
+				pc.Failed = true
+				return pc
 			}
 		}
 		return loopCtx
@@ -57,6 +57,9 @@ func TextEq(text string) ParseCombinator {
 		if pc.Failed {
 			return pc
 		}
+		if pc.IsCapturing {
+			pc.CapturedText = pc.CapturedText + text
+		}
 		pc.RemainingInput = pc.RemainingInput[len(text):]
 		return pc
 	}
@@ -84,7 +87,12 @@ func Repeat(comb ParseCombinator) ParseCombinator {
 func OpName() ParseCombinator {
 	opCombs := []ParseCombinator{}
 	for _, op := range vm.Bytecodes() {
-		opCombs = append(opCombs, TextEq(op.String()))
+		opCombs = append(opCombs,
+			TextEq(op.String()),
+			WithBuilder(func(bldr ast.Builder) (ast.Builder, error) {
+				return bldr.AddOpStmt(op), nil
+			}),
+		)
 	}
 	return Alt(opCombs...)
 }
@@ -111,6 +119,9 @@ func MatchRune(matcher func(r rune) bool) ParseCombinator {
 		pc.Failed = utf8.RuneError == r || size == 0 || !matcher(r)
 		if pc.Failed {
 			return pc
+		}
+		if pc.IsCapturing {
+			pc.CapturedText = pc.CapturedText + string(r)
 		}
 		pc.RemainingInput = pc.RemainingInput[size:]
 		return pc
@@ -152,15 +163,63 @@ func OpStmt() ParseCombinator {
 		Repeat(
 			Seq(
 				Whitespace(),
-				Alt(VarName(), Number()),
+				Alt(
+					Seq(
+						StartCapture(),
+						VarName(),
+						StopCapture(),
+						func(pc ParseContext) ParseContext {
+							bldr, err := pc.Bldr.AddParam(ast.Param{Variable: pc.CapturedText})
+							if err != nil {
+								pc.Failed = true
+								pc.Error = err
+							} else {
+								pc.CapturedText = ""
+								pc.Bldr = bldr
+							}
+							return pc
+						},
+					),
+					Seq(
+						StartCapture(),
+						Number(),
+						StopCapture(),
+						func(pc ParseContext) ParseContext {
+							num, err := strconv.ParseUint(pc.CapturedText, 10, 64)
+							if err != nil {
+								pc.Failed = true
+								pc.Error = err
+							}
+							bldr, err := pc.Bldr.AddParam(ast.Param{Literal: num})
+							if err != nil {
+								pc.Failed = true
+								pc.Error = err
+							} else {
+								pc.CapturedText = ""
+								pc.Bldr = bldr
+							}
+							return pc
+						},
+					),
+				),
 			),
 		),
+		CompleteStmt(),
 	)
 }
 
 func LabelStmt() ParseCombinator {
 	return Seq(
-		VarName(), TextEq(":"),
+		StartCapture(),
+		VarName(),
+		StopCapture(),
+		TextEq(":"),
+		func(pc ParseContext) ParseContext {
+			pc.Bldr = pc.Bldr.AddLabelStmt(pc.CapturedText)
+			pc.CapturedText = ""
+			return pc
+		},
+		CompleteStmt(),
 	)
 }
 
@@ -173,10 +232,23 @@ func Stmt() ParseCombinator {
 }
 
 func AST() ParseCombinator {
-
 	return func(pc ParseContext) ParseContext {
 		f := Seq(Repeat(Stmt()), EOF())
 		return f(pc)
+	}
+}
+
+func StartCapture() ParseCombinator {
+	return func(pc ParseContext) ParseContext {
+		pc.IsCapturing = true
+		return pc
+	}
+}
+
+func StopCapture() ParseCombinator {
+	return func(pc ParseContext) ParseContext {
+		pc.IsCapturing = false
+		return pc
 	}
 }
 
