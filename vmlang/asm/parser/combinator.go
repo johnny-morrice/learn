@@ -15,7 +15,7 @@ func Seq(combs ...ParseCombinator) ParseCombinator {
 		initCtx := pc
 		loopCtx := pc
 		for _, combinator := range combs {
-			loopCtx = combinator(loopCtx.Copy())
+			loopCtx = combinator(loopCtx)
 			if loopCtx.Failed {
 				initCtx.Failed = true
 				return initCtx
@@ -29,7 +29,7 @@ func Alt(combs ...ParseCombinator) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
 		loopCtx := pc
 		for _, combinator := range combs {
-			loopCtx = combinator(loopCtx.Copy())
+			loopCtx = combinator(loopCtx)
 			if !loopCtx.Failed {
 				return loopCtx
 			}
@@ -41,7 +41,6 @@ func Alt(combs ...ParseCombinator) ParseCombinator {
 
 func EOF() ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		pc = pc.Copy()
 		pc.Failed = len(pc.RemainingInput) != 0
 		return pc
 	}
@@ -49,7 +48,6 @@ func EOF() ParseCombinator {
 
 func TextEq(text string) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		pc = pc.Copy()
 		if len(pc.RemainingInput) < len(text) {
 			pc.Failed = true
 			return pc
@@ -74,7 +72,7 @@ func Repeat(comb ParseCombinator) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
 		loopCtx := pc
 		for {
-			nextCtx := comb(loopCtx.Copy())
+			nextCtx := comb(loopCtx)
 			if nextCtx.Failed {
 				return loopCtx
 			}
@@ -109,7 +107,6 @@ func Number() ParseCombinator {
 
 func MatchRune(matcher func(r rune) bool) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		pc = pc.Copy()
 		r, size := utf8.DecodeRuneInString(pc.RemainingInput)
 		pc.Failed = utf8.RuneError == r || size == 0 || !matcher(r)
 		if pc.Failed {
@@ -139,7 +136,7 @@ func StmtEnd() ParseCombinator {
 func VarStmt() ParseCombinator {
 	return Seq(
 		TextEq("var"),
-		AddProgress(func(bldr *ast.Builder) (*ast.Builder, error) {
+		AddProgress(func(bldr ast.Builder) (ast.Builder, error) {
 			return bldr.AddVarStmt(), nil
 		}),
 		Whitespace(),
@@ -185,20 +182,12 @@ func AST() ParseCombinator {
 
 func AddProgress(f ProgressFunc) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		pc = pc.Copy()
-		pc.AddProgress(f)
-
-		return pc
+		panic("not implemented")
 	}
 }
 
 func CompleteStmt() ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		pc = pc.Copy()
-		err := pc.CompleteStmt()
-		pc.Failed = err != nil
-		pc.Error = err
-
-		return pc
+		panic("not implemented")
 	}
 }

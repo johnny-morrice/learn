@@ -10,8 +10,7 @@ type Builder struct {
 	ast *AST
 }
 
-func (bldr *Builder) AddVarStmt() *Builder {
-	bldr.ensureAST()
+func (bldr Builder) AddVarStmt() Builder {
 	stmt := Stmt{
 		Var: &VarStmt{},
 	}
@@ -20,8 +19,7 @@ func (bldr *Builder) AddVarStmt() *Builder {
 	return bldr
 }
 
-func (bldr *Builder) AddLabelStmt(label string) *Builder {
-	bldr.ensureAST()
+func (bldr Builder) AddLabelStmt(label string) Builder {
 	stmt := Stmt{
 		Label: &LabelStmt{label},
 	}
@@ -30,8 +28,7 @@ func (bldr *Builder) AddLabelStmt(label string) *Builder {
 	return bldr
 }
 
-func (bldr *Builder) AddOpStmt(op vm.Bytecode) *Builder {
-	bldr.ensureAST()
+func (bldr Builder) AddOpStmt(op vm.Bytecode) Builder {
 	stmt := Stmt{
 		Op: &OpStmt{Op: op},
 	}
@@ -40,17 +37,16 @@ func (bldr *Builder) AddOpStmt(op vm.Bytecode) *Builder {
 	return bldr
 }
 
-func (bldr *Builder) AddVar(varName string) (*Builder, error) {
-	bldr.ensureAST()
-
+func (bldr Builder) AddVar(varName string) (Builder, error) {
+	var nope Builder
 	if len(bldr.ast.Stmts) == 0 {
-		return nil, errors.New("expected statement")
+		return nope, errors.New("expected statement")
 	}
 	lastIndex := len(bldr.ast.Stmts) - 1
 	lastItem := bldr.ast.Stmts[lastIndex]
 
 	if lastItem.Var == nil {
-		return nil, errors.New("expected var statement")
+		return nope, errors.New("expected var statement")
 	}
 
 	lastItem.Var.VarNames = append(lastItem.Var.VarNames, varName)
@@ -60,17 +56,16 @@ func (bldr *Builder) AddVar(varName string) (*Builder, error) {
 	return bldr, nil
 }
 
-func (bldr *Builder) AddParam(param Param) (*Builder, error) {
-	bldr.ensureAST()
-
+func (bldr Builder) AddParam(param Param) (Builder, error) {
+	var nope Builder
 	if len(bldr.ast.Stmts) == 0 {
-		return nil, errors.New("expected statement")
+		return nope, errors.New("expected statement")
 	}
 	lastIndex := len(bldr.ast.Stmts) - 1
 	lastItem := bldr.ast.Stmts[lastIndex]
 
 	if lastItem.Op == nil {
-		return nil, errors.New("expected op statement")
+		return nope, errors.New("expected op statement")
 	}
 
 	lastItem.Op.Params = append(lastItem.Op.Params, param)
@@ -80,11 +75,18 @@ func (bldr *Builder) AddParam(param Param) (*Builder, error) {
 	return bldr, nil
 }
 
-func (bldr *Builder) Build() *AST {
+func (bldr Builder) Build() *AST {
 	return bldr.ast
 }
 
-func (bldr *Builder) ensureAST() *Builder {
+func (bldr Builder) RemoveLastStmt() Builder {
+	if len(bldr.ast.Stmts) > 0 {
+		bldr.ast.Stmts = bldr.ast.Stmts[:len(bldr.ast.Stmts)-1]
+	}
+	return bldr
+}
+
+func (bldr Builder) ensureAST() Builder {
 	if bldr.ast == nil {
 		bldr.ast = &AST{}
 	}
