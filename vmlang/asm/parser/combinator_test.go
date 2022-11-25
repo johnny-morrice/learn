@@ -3,6 +3,10 @@ package parser
 import (
 	"reflect"
 	"testing"
+
+	"github.com/johnny-morrice/learn/vmlang/asm/ast"
+	"github.com/johnny-morrice/learn/vmlang/collections"
+	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
 func TestParserCombinators(t *testing.T) {
@@ -117,7 +121,19 @@ func TestParserCombinators(t *testing.T) {
 			},
 			comb: OpStmt(),
 			expected: ParseContext{
-				Failed:         false,
+				Failed: false,
+				Bldr: ast.Builder{
+					Stmts: collections.List[ast.Stmt]{}.
+						Append(ast.Stmt{
+							Op: &ast.OpStmt{
+								Op: vm.Push,
+								Params: []ast.Param{
+									{Variable: "foo"},
+									{Literal: 123},
+								},
+							},
+						}),
+				},
 				RemainingInput: "",
 			},
 		},
@@ -138,7 +154,11 @@ func TestParserCombinators(t *testing.T) {
 			},
 			comb: VarStmt(),
 			expected: ParseContext{
-				Failed:         false,
+				Failed: false,
+				Bldr: ast.Builder{
+					Stmts: collections.List[ast.Stmt]{}.
+						Append(ast.Stmt{Var: &ast.VarStmt{VarNames: []string{"foo", "bar"}}}),
+				},
 				RemainingInput: "",
 			},
 		},
@@ -159,7 +179,11 @@ func TestParserCombinators(t *testing.T) {
 			},
 			comb: LabelStmt(),
 			expected: ParseContext{
-				Failed:         false,
+				Failed: false,
+				Bldr: ast.Builder{
+					Stmts: collections.List[ast.Stmt]{}.
+						Append(ast.Stmt{Label: &ast.LabelStmt{Label: "foo"}}),
+				},
 				RemainingInput: "",
 			},
 		},
@@ -176,6 +200,9 @@ func TestParserCombinators(t *testing.T) {
 	}
 
 	for name, tc := range testCases {
+		if name != "OpStmt WhenMatch" {
+			continue
+		}
 		t.Run(name, func(t *testing.T) {
 			actual := tc.comb(tc.input)
 			if !reflect.DeepEqual(tc.expected, actual) {

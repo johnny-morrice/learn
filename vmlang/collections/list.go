@@ -1,9 +1,15 @@
 package collections
 
+import "fmt"
+
 type List[T any] struct {
 	Len      int
 	zeroNode *listNode[T]
 	lastNode *listNode[T]
+}
+
+func (l List[T]) String() string {
+	return fmt.Sprint(l.Slice())
 }
 
 func (l List[T]) Copy() List[T] {
