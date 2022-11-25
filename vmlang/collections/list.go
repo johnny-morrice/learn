@@ -2,8 +2,8 @@ package collections
 
 type List[T any] struct {
 	Len      int
-	zeroNode *ListNode[T]
-	lastNode *ListNode[T]
+	zeroNode *listNode[T]
+	lastNode *listNode[T]
 }
 
 func (l List[T]) Copy() List[T] {
@@ -11,12 +11,12 @@ func (l List[T]) Copy() List[T] {
 		return List[T]{}
 	}
 	fromNode := l.zeroNode
-	toNodeRoot := &ListNode[T]{}
+	toNodeRoot := &listNode[T]{}
 	toNode := toNodeRoot
 	toNode.Value = fromNode.Value
 	for fromNode.Next != nil {
 		fromNode = fromNode.Next
-		nextToNode := &ListNode[T]{}
+		nextToNode := &listNode[T]{}
 		nextToNode.Value = fromNode.Value
 		toNode.Next = nextToNode
 		toNode = nextToNode
@@ -39,7 +39,7 @@ func (l List[T]) Slice() []T {
 }
 
 func (l List[T]) Append(val T) List[T] {
-	node := &ListNode[T]{
+	node := &listNode[T]{
 		Value: val,
 	}
 	newList := l.Copy()
@@ -56,7 +56,7 @@ func (l List[T]) Append(val T) List[T] {
 	return newList
 }
 
-type ListNode[T any] struct {
+type listNode[T any] struct {
 	Value T
-	Next  *ListNode[T]
+	Next  *listNode[T]
 }

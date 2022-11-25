@@ -10,8 +10,6 @@ func ParseFile(fileName string) (*ast.AST, error) {
 	panic("not implemented")
 }
 
-type ProgressFunc func(bldr ast.Builder) (ast.Builder, error)
-
 type ParseContext struct {
 	FileName       string
 	Line           string
@@ -19,8 +17,7 @@ type ParseContext struct {
 	RemainingInput string
 	Failed         bool
 	Error          error
-	Bldr           *ast.Builder
-	Progress       []ProgressFunc
+	Bldr           ast.Builder
 }
 
 func Parse(pc ParseContext) (*ast.AST, error) {

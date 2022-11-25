@@ -25,16 +25,16 @@ func TestList(t *testing.T) {
 
 	listBaz := listBar.Append("baz")
 
-	expectedBazNode := &ListNode[string]{
+	expectedBazNode := &listNode[string]{
 		Value: "baz",
 	}
 
-	expectedBarNode := &ListNode[string]{
+	expectedBarNode := &listNode[string]{
 		Value: "bar",
 		Next:  expectedBazNode,
 	}
 
-	expectedFooNode := &ListNode[string]{
+	expectedFooNode := &listNode[string]{
 		Value: "foo",
 		Next:  expectedBarNode,
 	}

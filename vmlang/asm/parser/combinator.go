@@ -136,7 +136,7 @@ func StmtEnd() ParseCombinator {
 func VarStmt() ParseCombinator {
 	return Seq(
 		TextEq("var"),
-		AddProgress(func(bldr ast.Builder) (ast.Builder, error) {
+		WithBuilder(func(bldr ast.Builder) (ast.Builder, error) {
 			return bldr.AddVarStmt(), nil
 		}),
 		Whitespace(),
@@ -180,14 +180,22 @@ func AST() ParseCombinator {
 	}
 }
 
-func AddProgress(f ProgressFunc) ParseCombinator {
+type BuilderFunc func(bldr ast.Builder) (ast.Builder, error)
+
+func WithBuilder(f BuilderFunc) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		panic("not implemented")
+		bldr, err := f(pc.Bldr)
+		if err != nil {
+			pc.Failed = true
+			pc.Error = err
+		}
+		pc.Bldr = bldr
+		return pc
 	}
 }
 
 func CompleteStmt() ParseCombinator {
-	return func(pc ParseContext) ParseContext {
-		panic("not implemented")
-	}
+	return WithBuilder(func(bldr ast.Builder) (ast.Builder, error) {
+		return bldr.CompleteStmt()
+	})
 }
