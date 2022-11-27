@@ -14,16 +14,34 @@ type Stmt struct {
 }
 
 func (stmt Stmt) String() string {
-	if stmt.Var != nil {
+	isVar := stmt.Var != nil
+	isOp := stmt.Op != nil
+	isLabel := stmt.Label != nil
+
+	if countTrue(isVar, isOp, isLabel) > 1 {
+		return "[invalid AsmStmt]"
+	}
+
+	if isVar {
 		return stmt.Var.String()
 	}
-	if stmt.Op != nil {
+	if isOp {
 		return stmt.Op.String()
 	}
-	if stmt.Label != nil {
+	if isLabel {
 		return stmt.Label.String()
 	}
-	return "[invalid AsmStmt]"
+	return "[empty AsmStmt]"
+}
+
+func countTrue(bools ...bool) int {
+	x := 0
+	for _, b := range bools {
+		if b {
+			x++
+		}
+	}
+	return x
 }
 
 type VarStmt struct {

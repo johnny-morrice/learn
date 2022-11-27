@@ -74,7 +74,7 @@ func TestAssembleAndRunProgram(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			vm, err := Assemble(&tc.ast)
+			vm, err := Assemble(tc.ast)
 			if !errors.Is(err, tc.expectedError) {
 				t.Fatalf("expected assemble err: %s\nactual: %s", tc.expectedError, err)
 			}
@@ -226,7 +226,7 @@ func TestAssembleAsmScript(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			vm, err := Assemble(&tc.ast)
+			vm, err := Assemble(tc.ast)
 			if !errors.Is(err, tc.expectedError) {
 				t.Fatalf("expected err: %s\nactual: %s", tc.expectedError, err)
 			}
