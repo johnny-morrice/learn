@@ -3,6 +3,7 @@ package asm
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	"github.com/johnny-morrice/learn/vmlang/asm/ast"
 	"github.com/johnny-morrice/learn/vmlang/vm"
@@ -143,7 +144,7 @@ func (asm *assembler) setNameAddress(name string, addr uint64) {
 const stackSize = 2_000_000
 const gapSize = 100
 
-func Assemble(tree *ast.AST) (*vm.VirtualMachine, error) {
+func Assemble(tree ast.AST) (*vm.VirtualMachine, error) {
 	asm := assembler{
 		varTable:   map[string]int{},
 		nameTable:  map[string]*uint64{},
@@ -212,6 +213,7 @@ func Assemble(tree *ast.AST) (*vm.VirtualMachine, error) {
 	machine.StackEnd = stackEnd
 	machine.SP = stackStart
 	machine.HeapStart = heapStart
+	machine.Output = os.Stdout
 
 	return machine, nil
 }
