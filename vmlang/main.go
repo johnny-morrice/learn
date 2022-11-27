@@ -22,7 +22,7 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println("expected `input`")
+		flag.Usage()
 	}
 }
 
@@ -54,6 +54,7 @@ func (w byte2dec) Write(bs []byte) (int, error) {
 		} else {
 			return written, err
 		}
+		fmt.Println()
 	}
 	return written, nil
 }
