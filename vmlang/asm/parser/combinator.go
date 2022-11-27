@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"strconv"
 	"unicode"
@@ -11,7 +11,7 @@ import (
 	"github.com/johnny-morrice/learn/vmlang/vm"
 )
 
-const logBacktrack = true
+const logBacktrack = false
 
 type ParseCombinator func(pc ParseContext) ParseContext
 
@@ -21,10 +21,11 @@ func Seq(name string, combs ...ParseCombinator) ParseCombinator {
 		for _, combinator := range combs {
 			loopCtx = combinator(loopCtx)
 			if loopCtx.Failed {
-				if logBacktrack {
-					log.Printf("%s Seq backtrack: %s", name, pc.Error)
-				}
 				pc.Failed = true
+				pc.ErrorMessage = loopCtx.ErrorMessage
+				if logBacktrack {
+					log.Printf("%s Seq backtrack: %s", name, pc.ErrorMessage)
+				}
 				return pc
 			}
 		}
@@ -36,15 +37,17 @@ func Alt(name string, combs ...ParseCombinator) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
 		loopCtx := pc
 		for _, combinator := range combs {
+			loopCtx = pc
 			loopCtx = combinator(loopCtx)
 			if !loopCtx.Failed {
-				if logBacktrack {
-					log.Printf("%s Alt backtrack: %s", name, pc.Error)
-				}
 				return loopCtx
 			}
 		}
 		pc.Failed = true
+		pc.ErrorMessage = loopCtx.ErrorMessage
+		if logBacktrack {
+			log.Printf("%s Alt backtrack: %s", name, pc.ErrorMessage)
+		}
 		return pc
 	}
 }
@@ -56,22 +59,22 @@ func EOF() ParseCombinator {
 	}
 }
 
-func TextEq(text string) ParseCombinator {
+func TextEq(name, text string) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
 		if len(pc.RemainingInput) < len(text) {
 			pc.Failed = true
-			pc.Error = errors.New("expected: " + text)
+			pc.ErrorMessage = fmt.Sprintf("not enough input to match expected for rule %s %q but was: %q", name, text, pc.RemainingInput)
 			if logBacktrack {
-				log.Printf("TextEq backtrack: %s", pc.Error)
+				log.Printf("TextEq backtrack: %s", pc.ErrorMessage)
 			}
 			return pc
 		}
 		input := pc.RemainingInput[:len(text)]
 		pc.Failed = text != input
 		if pc.Failed {
-			pc.Error = errors.New("expected: " + text)
+			pc.ErrorMessage = fmt.Sprintf("expected for rule %s %q but was: %q", name, text, input)
 			if logBacktrack {
-				log.Printf("TextEq backtrack: %s", pc.Error)
+				log.Printf("TextEq backtrack: %s", pc.ErrorMessage)
 			}
 			return pc
 		}
@@ -85,18 +88,18 @@ func TextEq(text string) ParseCombinator {
 
 func WhiteChar() ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		return Alt("WhiteChar", TextEq(" "), TextEq("\t"))(pc)
+		return Alt("WhiteChar", TextEq("WhitespaceSpace", " "), TextEq("WhitespaceTab", "\t"))(pc)
 	}
 }
 
-func Repeat(comb ParseCombinator) ParseCombinator {
+func Repeat(name string, comb ParseCombinator) ParseCombinator {
 	return func(pc ParseContext) ParseContext {
 		loopCtx := pc
 		for {
 			nextCtx := comb(loopCtx)
 			if nextCtx.Failed {
 				if logBacktrack {
-					log.Printf("Repeat backtrack: %s", nextCtx.Error)
+					log.Printf("Repeat backtrack %s: %s", name, nextCtx.ErrorMessage)
 				}
 				return loopCtx
 			}
@@ -111,7 +114,7 @@ func OpName() ParseCombinator {
 		op := iterOp
 		opCombs = append(opCombs,
 			Seq("Op"+op.String(),
-				TextEq(op.String()),
+				TextEq("OpName", op.String()),
 				WithBuilder(func(bldr ast.Builder) (ast.Builder, error) {
 					return bldr.AddOpStmt(op), nil
 				}),
@@ -130,11 +133,11 @@ func Digit() ParseCombinator {
 }
 
 func VarName() ParseCombinator {
-	return Seq("VarName", Letter(), Repeat(Alt("VarNameContinue", Letter(), Digit())))
+	return Seq("VarName", Letter(), Repeat("VarNameContinue", Alt("VarNameLetterOrDigit", Letter(), Digit())))
 }
 
 func Number() ParseCombinator {
-	return Seq("Number", Digit(), Repeat(Digit()))
+	return Seq("Number", Digit(), Repeat("NumberDigits", Digit()))
 }
 
 func MatchRune(name string, matcher func(r rune) bool) ParseCombinator {
@@ -142,9 +145,9 @@ func MatchRune(name string, matcher func(r rune) bool) ParseCombinator {
 		r, size := utf8.DecodeRuneInString(pc.RemainingInput)
 		pc.Failed = utf8.RuneError == r || size == 0 || !matcher(r)
 		if pc.Failed {
-			pc.Error = errors.New("unexpected rune: " + name)
+			pc.ErrorMessage = fmt.Sprintf("unexpected rune for rule %s: %q", name, string(r))
 			if logBacktrack {
-				log.Printf("MatchRune backtrack: %s", pc.Error)
+				log.Printf("MatchRune backtrack: %s", pc.ErrorMessage)
 			}
 			return pc
 		}
@@ -157,15 +160,15 @@ func MatchRune(name string, matcher func(r rune) bool) ParseCombinator {
 }
 
 func Whitespace() ParseCombinator {
-	return Seq("Whitespace", WhiteChar(), Repeat(WhiteChar()))
+	return Seq("Whitespace", WhiteChar(), Repeat("Whitespaces", WhiteChar()))
 }
 
 func OptionalWhitespace() ParseCombinator {
-	return Repeat(WhiteChar())
+	return Repeat("OptionalWhitespaces", WhiteChar())
 }
 
 func Newline() ParseCombinator {
-	return Alt("Newline", TextEq("\n"), TextEq("\r\n"))
+	return Alt("Newline", TextEq("Newline", "\n"), TextEq("WindowsNewline", "\r\n"))
 }
 
 func StmtEnd() ParseCombinator {
@@ -175,13 +178,13 @@ func StmtEnd() ParseCombinator {
 func VarStmt() ParseCombinator {
 	return Seq(
 		"VarStmt",
-		TextEq("var"),
+		TextEq("Var", "var"),
 		WithBuilder(func(bldr ast.Builder) (ast.Builder, error) {
 			return bldr.AddVarStmt(), nil
 		}),
 		Whitespace(),
 		VarDecl(),
-		Repeat(Seq("VarDecls", Whitespace(), VarDecl())),
+		Repeat("VarDecls", Seq("VarDecl", Whitespace(), VarDecl())),
 		CompleteStmt(),
 	)
 }
@@ -196,7 +199,7 @@ func VarDecl() ParseCombinator {
 			bldr, err := pc.Bldr.AddVar(pc.CapturedText)
 			if err != nil {
 				pc.Failed = true
-				pc.Error = err
+				pc.ErrorMessage = err.Error()
 			} else {
 				pc.CapturedText = ""
 				pc.Bldr = bldr
@@ -211,8 +214,9 @@ func OpStmt() ParseCombinator {
 		"OpStmt",
 		OpName(),
 		Repeat(
+			"OpParams",
 			Seq(
-				"OpParams",
+				"SpacedParam",
 				Whitespace(),
 				Alt(
 					"OpParamAlt",
@@ -225,7 +229,7 @@ func OpStmt() ParseCombinator {
 							bldr, err := pc.Bldr.AddParam(ast.Param{Variable: pc.CapturedText})
 							if err != nil {
 								pc.Failed = true
-								pc.Error = err
+								pc.ErrorMessage = err.Error()
 							} else {
 								pc.CapturedText = ""
 								pc.Bldr = bldr
@@ -242,12 +246,12 @@ func OpStmt() ParseCombinator {
 							num, err := strconv.ParseUint(pc.CapturedText, 10, 64)
 							if err != nil {
 								pc.Failed = true
-								pc.Error = err
+								pc.ErrorMessage = err.Error()
 							}
 							bldr, err := pc.Bldr.AddParam(ast.Param{Literal: num})
 							if err != nil {
 								pc.Failed = true
-								pc.Error = err
+								pc.ErrorMessage = err.Error()
 							} else {
 								pc.CapturedText = ""
 								pc.Bldr = bldr
@@ -268,7 +272,7 @@ func LabelStmt() ParseCombinator {
 		StartCapture(),
 		VarName(),
 		StopCapture(),
-		TextEq(":"),
+		TextEq("LabelColon", ":"),
 		func(pc ParseContext) ParseContext {
 			pc.Bldr = pc.Bldr.AddLabelStmt(pc.CapturedText)
 			pc.CapturedText = ""
@@ -291,7 +295,7 @@ func Stmt() ParseCombinator {
 
 func AST() ParseCombinator {
 	return func(pc ParseContext) ParseContext {
-		f := Seq("AST", Repeat(Stmt()), EOF())
+		f := Seq("AST", Repeat("Statements", Stmt()), EOF())
 		return f(pc)
 	}
 }
@@ -317,7 +321,7 @@ func WithBuilder(f BuilderFunc) ParseCombinator {
 		bldr, err := f(pc.Bldr)
 		if err != nil {
 			pc.Failed = true
-			pc.Error = err
+			pc.ErrorMessage = err.Error()
 		}
 		pc.Bldr = bldr
 		return pc

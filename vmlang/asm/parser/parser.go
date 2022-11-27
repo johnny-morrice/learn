@@ -16,9 +16,9 @@ type ParseContext struct {
 	Char           string
 	RemainingInput string
 	Failed         bool
-	Error          error
 	IsCapturing    bool
 	CapturedText   string
+	ErrorMessage   string
 	Bldr           ast.Builder
 }
 

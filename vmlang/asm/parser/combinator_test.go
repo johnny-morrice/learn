@@ -35,7 +35,7 @@ func TestParserCombinators(t *testing.T) {
 			input: ParseContext{
 				RemainingInput: "hello there",
 			},
-			comb: TextEq("hello"),
+			comb: TextEq("HelloRule", "hello"),
 			expected: ParseContext{
 				Failed:         false,
 				RemainingInput: " there",
@@ -45,9 +45,10 @@ func TestParserCombinators(t *testing.T) {
 			input: ParseContext{
 				RemainingInput: "hello there",
 			},
-			comb: TextEq("hi"),
+			comb: TextEq("HiRule", "hi"),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "expected for rule HiRule \"hi\" but was: \"he\"",
 				RemainingInput: "hello there",
 			},
 		},
@@ -69,6 +70,7 @@ func TestParserCombinators(t *testing.T) {
 			comb: Number(),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "unexpected rune for rule IsDigit: \"o\"",
 				RemainingInput: "one two three apples",
 			},
 		},
@@ -90,6 +92,7 @@ func TestParserCombinators(t *testing.T) {
 			comb: VarName(),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "unexpected rune for rule IsLetter: \"1\"",
 				RemainingInput: "123 bar",
 			},
 		},
@@ -111,6 +114,7 @@ func TestParserCombinators(t *testing.T) {
 			comb: Whitespace(),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "expected for rule WhitespaceTab \"\\t\" but was: \"f\"",
 				RemainingInput: "foo",
 			},
 		},
@@ -145,6 +149,7 @@ func TestParserCombinators(t *testing.T) {
 			expected: ParseContext{
 				Failed:         true,
 				RemainingInput: "var foo 123",
+				ErrorMessage:   "expected for rule OpName \"mult\" but was: \"var \"",
 			},
 		},
 
@@ -169,6 +174,7 @@ func TestParserCombinators(t *testing.T) {
 			comb: VarStmt(),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "expected for rule Var \"var\" but was: \"pus\"",
 				RemainingInput: "push foo 123",
 			},
 		},
@@ -194,15 +200,13 @@ func TestParserCombinators(t *testing.T) {
 			comb: LabelStmt(),
 			expected: ParseContext{
 				Failed:         true,
+				ErrorMessage:   "not enough input to match expected for rule LabelColon \":\" but was: \"\"",
 				RemainingInput: "foo",
 			},
 		},
 	}
 
 	for name, tc := range testCases {
-		if name != "OpStmt WhenMatch" {
-			continue
-		}
 		t.Run(name, func(t *testing.T) {
 			actual := tc.comb(tc.input)
 			if !reflect.DeepEqual(tc.expected, actual) {
