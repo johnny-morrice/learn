@@ -76,8 +76,8 @@ func (bldr Builder) CompleteStmt() (Builder, error) {
 	return bldr, nil
 }
 
-func (bldr Builder) Build() *AST {
-	return &AST{
+func (bldr Builder) Build() AST {
+	return AST{
 		Stmts: bldr.Stmts.Slice(),
 	}
 }

@@ -35,6 +35,9 @@ func (l List[T]) Copy() List[T] {
 }
 
 func (l List[T]) Slice() []T {
+	if l.Len == 0 {
+		return nil
+	}
 	sl := []T{}
 	node := l.zeroNode
 	for i := 0; i < l.Len; i++ {

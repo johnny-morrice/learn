@@ -22,10 +22,10 @@ type ParseContext struct {
 	Bldr           ast.Builder
 }
 
-func Parse(pc ParseContext) (*ast.AST, error) {
+func Parse(pc ParseContext) (ast.AST, error) {
 	pc = AST()(pc)
 	if pc.Failed {
-		return nil, errors.New("parse error")
+		return ast.AST{}, errors.New("parse error")
 	}
 	return pc.Bldr.Build(), nil
 }
